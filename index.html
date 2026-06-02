@@ -1,0 +1,2584 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>다중 학생 학과별 선택과목 정밀 설계 프로그램</title>
+<style>
+:root{
+  --bg:#f6f9fc;--card:#fff;--ink:#111827;--muted:#64748b;--line:#d9e2ec;
+  --navy:#1e3a8a;--teal:#0f766e;--blue:#2563eb;--green:#16a34a;--purple:#7c3aed;--orange:#ea580c;
+  --red:#dc2626;--soft:#eefcf8;--yellow:#fef3c7;
+}
+*{box-sizing:border-box}
+html,body{height:100%;min-height:100%}
+body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;background:linear-gradient(180deg,#eaf7f3 0,#f6f9fc 270px);color:var(--ink);overflow:hidden;display:flex;flex-direction:column}
+header{width:min(100%,1320px);margin:0 auto;padding:16px 20px 10px;flex:0 0 auto}
+.badge{display:inline-flex;background:#fff;border:1px solid #b6e3dc;color:var(--teal);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900}
+h1{font-size:clamp(24px,2.4vw,32px);margin:10px 0 6px;letter-spacing:-1.2px;line-height:1.12}
+.lead{max-width:1180px;color:var(--muted);font-size:13px;line-height:1.55;margin:0}
+main{width:min(100%,1320px);min-height:0;flex:1 1 auto;margin:0 auto 8px;padding:0 16px;display:grid;grid-template-columns:minmax(320px,360px) minmax(0,1fr);gap:14px;overflow:hidden}
+.panel,.card,.notice,.summary{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:20px;box-shadow:0 10px 28px rgba(15,23,42,.055);min-width:0}
+.panel{padding:14px;align-self:stretch;position:static;height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable}
+.panel h2{font-size:18px;margin:4px 0 12px}
+label{display:block;font-size:13px;font-weight:900;color:#334155;margin:13px 0 7px}
+input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:14px;padding:12px 13px;background:#fff;font-size:14px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(15,118,110,.12)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+button{border:0;border-radius:14px;padding:11px 14px;font-weight:950;cursor:pointer;background:#e2e8f0;color:#0f172a}
+button.primary{background:var(--teal);color:#fff}
+button.blue{background:var(--blue);color:#fff}
+button.ghost{background:#fff;border:1px solid var(--line)}
+.small{font-size:12px;color:var(--muted);line-height:1.6}
+
+.student-manager{border:1px solid var(--line);background:#f8fafc;border-radius:18px;padding:12px;margin-bottom:16px}
+.student-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.student-actions button{padding:10px 9px;font-size:12px}
+.student-list{display:flex;flex-direction:column;gap:8px;max-height:clamp(120px,18vh,260px);overflow-y:auto;overflow-x:hidden;padding-right:4px;margin-top:10px;overscroll-behavior:contain}
+.student-card{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 11px;cursor:pointer;transition:.12s}
+.student-card:hover{border-color:#99f6e4;box-shadow:0 6px 16px rgba(15,118,110,.08)}
+.student-card.active{border-color:var(--teal);background:#f0fdfa}
+.student-card b{display:block;font-size:14px;color:#0f172a;margin-bottom:4px}
+.student-card span{display:block;font-size:11px;color:#64748b;line-height:1.45}
+.student-empty{border:1px dashed #bac7d5;border-radius:14px;padding:13px;text-align:center;color:#64748b;font-size:12px;line-height:1.55;background:#fff}
+.danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.filebtn{display:inline-flex;justify-content:center;align-items:center;border-radius:14px;padding:10px 9px;font-weight:950;cursor:pointer;background:#fff;border:1px solid var(--line);font-size:12px;color:#0f172a;text-align:center}
+.content{display:flex;flex-direction:column;gap:12px;height:100%;min-height:0;min-width:0;overflow-y:auto;overflow-x:hidden;padding-right:4px;overscroll-behavior:contain;scrollbar-gutter:stable}
+.summary{padding:14px}
+.summary-title{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.summary h3{margin:0;font-size:17px}
+.student-line{color:#334155;font-size:14px;margin-top:8px;line-height:1.7}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.stat{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fbfdff}
+.stat b{font-size:25px;display:block;color:#0f766e}
+.stat span{font-size:12px;font-weight:900;color:#64748b}
+.notice{padding:12px 14px;color:#475569;line-height:1.55;font-size:12px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:12px;font-weight:900;color:#475569;cursor:pointer}
+.chip.active{background:var(--teal);border-color:var(--teal);color:#fff}
+.card{padding:16px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.title{font-size:24px;font-weight:1000;letter-spacing:-.7px;margin:0 0 5px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0 8px}
+.pill{font-size:12px;font-weight:900;border-radius:999px;padding:5px 9px;background:#f1f5f9;color:#334155}
+.pill.domain{background:#dcfce7;color:#166534}.pill.source{background:#dbeafe;color:#1d4ed8}.pill.warn{background:#fef3c7;color:#92400e}.pill.exact{background:#f3e8ff;color:#6b21a8}
+.score{min-width:100px;text-align:center;border:1px solid #99f6e4;background:#f0fdfa;border-radius:18px;padding:10px}
+.score b{font-size:26px;color:#0f766e;display:block}
+.score span{font-size:11px;font-weight:900;color:#0f766e}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:11px}
+.box{border:1px solid var(--line);background:#fbfdff;border-radius:16px;padding:13px;min-height:106px}
+.box h4{font-size:14px;margin:0 0 8px;display:flex;gap:7px;align-items:center}
+.box h4:before{content:"";width:9px;height:9px;border-radius:50%;display:inline-block}
+.common h4:before{background:var(--green)}.general h4:before{background:var(--blue)}.career h4:before{background:var(--purple)}.fusion h4:before{background:var(--orange)}
+.subjects{display:flex;flex-wrap:wrap;gap:6px}
+.subj{font-size:12px;font-weight:850;border:1px solid #d8dee8;background:#fff;border-radius:999px;padding:5px 8px}
+.subj.core{border-color:#86efac;background:#f0fdf4;color:#166534}
+.subj.rec{border-color:#bfdbfe;background:#eff6ff;color:#1e40af}
+.subj.career{border-color:#ddd6fe;background:#f5f3ff;color:#6d28d9}
+.subj.fusion{border-color:#fed7aa;background:#fff7ed;color:#c2410c}
+.matrix{margin-top:11px;border:1px solid var(--line);border-radius:16px;overflow-x:auto;overflow-y:hidden}
+.matrix table{width:100%;min-width:560px;border-collapse:collapse;font-size:12px}
+.matrix th{background:#f8fafc;color:#334155;text-align:left;padding:9px;border-bottom:1px solid var(--line)}
+.matrix td{padding:9px;border-top:1px solid #eef2f7;vertical-align:top}
+.guide{margin-top:13px;background:#f8fafc;border-left:5px solid var(--teal);border-radius:14px;padding:12px 14px;color:#334155;font-size:13px;line-height:1.7}
+.checklist{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;max-height:280px;overflow:auto;padding-right:4px}
+.checkitem{display:flex;align-items:center;gap:7px;font-size:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px}
+.checkitem input{width:auto}
+.panel::-webkit-scrollbar,.content::-webkit-scrollbar,.student-list::-webkit-scrollbar,.checklist::-webkit-scrollbar{width:10px}
+.panel::-webkit-scrollbar-thumb,.content::-webkit-scrollbar-thumb,.student-list::-webkit-scrollbar-thumb,.checklist::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px;border:2px solid #fff}
+.panel::-webkit-scrollbar-track,.content::-webkit-scrollbar-track,.student-list::-webkit-scrollbar-track,.checklist::-webkit-scrollbar-track{background:transparent}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed #bac7d5;background:#fff;border-radius:20px;line-height:1.7}
+.footer{width:min(100%,1320px);margin:0 auto 6px;padding:0 16px;color:#64748b;font-size:11px;line-height:1.35;flex:0 0 auto}
+mark{background:#fef9c3;border-radius:4px;padding:0 2px}
+@media(max-width:1100px){main{grid-template-columns:minmax(300px,340px) minmax(0,1fr);padding:0 12px;gap:10px}.grid4{grid-template-columns:1fr 1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:24px}.lead{font-size:12px}}
+@media(max-width:860px){body{overflow:auto;display:block}header{padding:14px 14px 10px}main{grid-template-columns:1fr;height:auto;overflow:visible;padding:0 14px}.panel{position:static;height:auto;overflow:visible}.content{height:auto;overflow:visible;padding-right:0}.footer{padding:0 14px 12px}}
+@media(max-width:640px){.row,.grid4,.stats,.checklist{grid-template-columns:1fr}.top,.summary-title,.toolbar{flex-direction:column;align-items:stretch}.score{width:100%}}
+@media print{
+ body{background:#fff;overflow:visible}header,.panel,.toolbar,.footer{display:none}
+ main{display:block;max-width:none;padding:0}.content{display:block}.summary,.card,.notice{box-shadow:none;break-inside:avoid;margin-bottom:12px}
+ .card{page-break-inside:avoid}.grid4{grid-template-columns:repeat(4,1fr)}
+ .print-header{display:block !important}
+}
+
+/* === 고도화 추가 스타일 === */
+.student-tools{display:flex;gap:8px;align-items:center;margin-top:10px}
+.student-tools input{flex:1;padding:9px 11px;font-size:13px;border-radius:12px}
+.sort-toggle{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 11px;font-size:12px;font-weight:900;color:#475569;cursor:pointer;white-space:nowrap}
+.student-count{font-size:12px;font-weight:900;color:var(--teal);margin-top:10px}
+.student-card .meta{display:block;font-size:10px;color:#94a3b8;margin-top:4px}
+.student-card.has-memo b:after{content:"\1F4DD";font-size:11px;margin-left:5px}
+textarea#memo{min-height:60px;resize:vertical;line-height:1.5}
+.subj.checked{border-color:#22c55e;background:#16a34a;color:#fff;font-weight:900}
+.subj.checked:before{content:"\2713 "}
+.supplement{margin-top:11px;background:#fff7ed;border-left:5px solid var(--orange);border-radius:14px;padding:11px 13px;font-size:13px;line-height:1.6;color:#7c2d12}
+.supplement b{color:#c2410c}
+.supplement .subjects{margin-top:7px}
+.matched-info{margin-top:9px;font-size:12px;color:#166534;font-weight:900}
+.print-header{display:none;padding:0 0 8px;border-bottom:2px solid var(--teal);margin-bottom:10px}
+.print-header h2{margin:0 0 4px;font-size:20px}
+.print-header .ph-line{font-size:13px;color:#334155}
+.print-header .ph-memo{margin-top:6px;font-size:13px;color:#475569;white-space:pre-wrap}
+.mobile-tabs{display:none}
+@media(max-width:860px){
+  .mobile-tabs{display:flex;gap:8px;width:min(100%,1320px);margin:0 auto;padding:0 14px 8px}
+  .mobile-tabs button{flex:1;border:1px solid var(--line);background:#fff;color:#475569;border-radius:14px;padding:11px;font-weight:950;font-size:14px}
+  .mobile-tabs button.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+  body.m-results aside.panel{display:none}
+  body.m-input section.content{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <span class="badge">2022 개정 교육과정 + 2028 모집단위별 반영·권장과목 기반</span>
+  <h1>다중 학생 학과별 선택과목 정밀 설계 프로그램</h1>
+  <p class="lead">여러 학생을 등록해 두고 학생별 희망 학과·계열·체크 과목을 따로 관리할 수 있습니다. 학생명과 학교명을 입력하고 희망 학과를 검색하면, 자료집의 모집단위별 반영과목을 바탕으로 <b>공통과목·일반선택과목·진로선택과목·융합선택과목</b>을 분리하여 제시합니다. 검색은 학과명 일부만 입력해도 작동하며, 예를 들어 “컴공”, “간호”, “경영”, “의대”, “디자인”처럼 입력해도 관련 학과가 출력되며, 온리도 학과안내소에 노출되는 인문·사회·교육·자연·공학·의약·예체능 계열 학과명을 검색 확장 DB로 보강했습니다.</p>
+</header>
+
+<div class="mobile-tabs">
+  <button id="tabInput" class="active" onclick="setMobileView('input')">① 학생 입력</button>
+  <button id="tabResults" onclick="setMobileView('results')">② 추천 결과</button>
+</div>
+
+<main>
+<aside class="panel">
+  <h2>① 학생 목록 관리</h2>
+  <div class="student-manager">
+    <div class="student-actions">
+      <button class="primary" onclick="saveCurrentStudent()">현재 학생 저장</button>
+      <button class="ghost" onclick="newStudent()">새 학생 입력</button>
+      <button class="ghost" onclick="exportStudentsJSON()">학생목록 백업</button>
+      <label class="filebtn" for="importStudentFile">백업 불러오기</label>
+      <button class="blue" onclick="exportAllStudentsCSV()">전체 학생 CSV</button>
+      <button class="danger" onclick="deleteCurrentStudent()">선택 학생 삭제</button>
+    </div>
+    <input id="importStudentFile" type="file" accept="application/json,.json" style="display:none" onchange="importStudentsJSON(event)">
+    <div class="student-tools">
+      <input id="studentSearch" placeholder="학생 검색 (이름·학교)" oninput="renderStudentList()">
+      <button class="sort-toggle" id="sortToggle" onclick="toggleStudentSort()">최근순</button>
+    </div>
+    <div class="student-count" id="studentCount"></div>
+    <div id="studentList" class="student-list"></div>
+    <p class="small">학생을 저장하면 이 브라우저에 학생별 검색어와 체크 과목이 따로 보관됩니다. 다른 PC로 옮길 때는 백업 파일을 저장한 뒤 불러오면 됩니다.</p>
+  </div>
+
+  <h2>② 학생정보</h2>
+  <div class="row">
+    <div><label>학생명</label><input id="studentName" placeholder="예: 김○○" oninput="render()"></div>
+    <div><label>학교</label><input id="schoolName" placeholder="예: ○○고등학교" oninput="render()"></div>
+  </div>
+  <div class="row">
+    <div><label>학년</label><select id="grade" onchange="render()"><option>고1</option><option>고2</option><option>고3</option></select></div>
+    <div><label>계열</label><select id="domain" onchange="render()"><option value="">전체</option><option>인문</option><option>사회</option><option>교육</option><option>자연</option><option>공학</option><option>의약</option><option>예체능</option></select></div>
+  </div>
+  <label>학과/키워드 검색</label>
+  <input id="q" placeholder="예: 컴퓨터공학과, 간호학과, 경영, 의예, 디자인" oninput="render();">
+  <label>상담 메모</label>
+  <textarea id="memo" placeholder="상담 내용·특이사항·다음 상담 일정 등을 메모하세요. 학생별로 따로 저장됩니다." oninput="render()"></textarea>
+  <label>학생 이수/선택 예정 과목 체크</label>
+  <div id="studentSubjects" class="checklist"></div>
+  <div class="btns">
+    <button class="primary" onclick="render()">추천 갱신</button>
+    <button class="blue" onclick="window.print()">보고서 인쇄</button>
+    <button class="ghost" onclick="resetAll()">초기화</button>
+  </div>
+  <p class="small">체크 과목은 적합도 계산용입니다. 실제 상담에서는 학교 개설 과목, 학생의 과목 성취도, 희망 대학의 모집요강을 함께 확인해야 합니다.</p>
+</aside>
+
+<section class="content">
+  <div class="print-header" id="printHeader"></div>
+  <div class="summary">
+    <div class="summary-title">
+      <h3>학생 선택과목 상담 요약</h3>
+      <button class="ghost" onclick="exportCSV()">CSV 저장</button>
+    </div>
+    <div class="student-line" id="studentInfoLine"></div>
+    <div class="stats">
+      <div class="stat"><b id="nMajors">0</b><span>출력 학과군</span></div>
+      <div class="stat"><b id="nSelected">0</b><span>체크 과목 수</span></div>
+      <div class="stat"><b id="topScore">0</b><span>최고 적합도</span></div>
+      <div class="stat"><b id="nSupplement">0</b><span>보완 필요 과목</span></div>
+    </div>
+  </div>
+  <div class="notice"><b>해석 기준</b> ① ‘2028 자료집 반영과목’은 대학들이 모집단위 이해를 돕기 위해 제시한 반영·권장 경향입니다. ② ‘2022 개정 과목 설계’는 실제 학교 과목 선택을 위해 공통/일반선택/진로선택/융합선택으로 재배치한 상담용 설계입니다. ③ 별표(*) 성격의 대학은 일반선택 이수 후 진로·적성에 맞는 진로선택·융합선택 이수를 권장하는 방식으로 해석했습니다.</div>
+  <div class="toolbar">
+    <div id="chips" class="chips"></div>
+  </div>
+  <div id="results"></div>
+</section>
+</main>
+
+<div class="footer">
+  <p>본 프로그램은 업로드 자료를 바탕으로 상담용으로 재구성한 것입니다. 대학별 세부 권장과목은 변경될 수 있으므로, 최종 과목 선택 전 반드시 학교 교육과정 편성표와 해당 대학의 최신 모집요강을 확인해야 합니다.</p>
+</div>
+
+<script>
+const COMMON_ALL = ['공통국어1','공통국어2','공통수학1','공통수학2','공통영어1','공통영어2','한국사1','한국사2','통합사회1','통합사회2','통합과학1','통합과학2','과학탐구실험1','과학탐구실험2'];
+
+const SUBJECTS = [
+ '공통국어1','공통국어2','공통수학1','공통수학2','공통영어1','공통영어2','한국사1','한국사2','통합사회1','통합사회2','통합과학1','통합과학2','과학탐구실험1','과학탐구실험2',
+ '화법과 언어','독서와 작문','문학','주제 탐구 독서','문학과 영상','매체 의사소통',
+ '대수','미적분Ⅰ','확률과 통계','미적분Ⅱ','기하','인공지능 수학','직무 수학','수학과 문화','실용 통계','수학과제 탐구',
+ '기본 영어','영어Ⅰ','영어Ⅱ','심화 영어','영미 문학 읽기','영어 발표와 토론','심화 영어 독해와 작문',
+ '세계시민과 지리','세계사','동아시아 역사 기행','역사로 탐구하는 현대 세계','사회와 문화','현대사회와 윤리','정치와 법','경제','윤리문제 탐구','국제 관계의 이해','사회문제 탐구','금융과 경제생활','기후변화와 지속가능한 세계',
+ '물리학','화학','생명과학','지구과학','역학과 에너지','전자기와 양자','물질과 에너지','화학 반응의 세계','세포와 물질대사','생물의 유전','지구시스템과학','행성우주과학','과학의 역사와 문화','융합과학 탐구','기후변화와 환경생태',
+ '기술·가정','로봇과 공학세계','생활과학 탐구','창의 공학 설계','지식 재산 일반','생애 설계와 자립','아동발달과 부모',
+ '정보','인공지능 기초','데이터 과학','소프트웨어와 생활',
+ '한문','중국어','일본어','스페인어','프랑스어','독일어',
+ '음악','미술','체육','미술 창작','미술 감상과 비평','음악 감상과 비평','스포츠 생활','스포츠 문화','스포츠 과학'
+];
+
+const DATA = [
+ {major:'영어영문학과',basis:'2028 자료집 기준학과',domain:'인문',aliases:['영어영문','영문','영어학','영미어문','영어교육 제외','통번역','영문과'],reflect:{국어:'국어',수학:'대수, 확률과 통계 중심',영어:'영어',사회:'일반사회·역사·지리·윤리',과학:'일부 대학 물리학 반영',기타:'제2외국어/한문'},general:['영어Ⅰ','영어Ⅱ','독서와 작문','화법과 언어','세계시민과 지리','세계사','사회와 문화','현대사회와 윤리'],career:['심화 영어','영미 문학 읽기','영어 발표와 토론','주제 탐구 독서'],fusion:['매체 의사소통','논리와 사고','국제 관계의 이해'],note:'영어영문 계열은 영어 독해·작문 능력과 인문사회적 배경지식이 중요합니다. 제2외국어/한문은 대학별 권장에 따라 보완하면 좋습니다.'},
+ {major:'철학과',basis:'2028 자료집 기준학과',domain:'인문',aliases:['철학','윤리철학','인문학','철학과'],reflect:{국어:'국어',수학:'대수·확률과 통계 일부',영어:'영어',사회:'일반사회·역사·윤리 중심',과학:'일부 대학 과학 반영',기타:'한문/교양/제2외국어'},general:['독서와 작문','문학','화법과 언어','현대사회와 윤리','세계사','사회와 문화'],career:['주제 탐구 독서','윤리문제 탐구','한문'],fusion:['논리와 사고','고전과 윤리','매체 의사소통'],note:'철학과는 개념 분석, 논증, 고전 독해 역량이 핵심입니다. 윤리·역사·독서 과목을 중심으로 설계합니다.'},
+ {major:'경영학과',basis:'2028 자료집 기준학과',domain:'사회',aliases:['경영','경영학','회계','마케팅','무역','글로벌경영','경영정보','경영학부'],reflect:{국어:'국어',수학:'대수, 확률과 통계, 미적분Ⅰ, 일부 미적분Ⅱ',영어:'영어',사회:'일반사회·역사·지리·윤리',과학:'일부 대학 물리학·화학·생명과학 반영',기타:'제2외국어 일부'},general:['대수','확률과 통계','미적분Ⅰ','영어Ⅰ','영어Ⅱ','사회와 문화','경제','정치와 법'],career:['경제 수학','인공지능 수학','데이터 과학','주제 탐구 독서'],fusion:['실용 통계','금융과 경제생활','사회문제 탐구','수학과제 탐구'],note:'경영학과는 수리·통계·자료 해석 역량과 사회현상 이해가 동시에 필요합니다. 확률과 통계, 경제, 실용 통계를 우선 권장합니다.'},
+ {major:'심리학과',basis:'2028 자료집 기준학과',domain:'사회',aliases:['심리','상담','임상심리','인지과학','심리상담'],reflect:{국어:'국어',수학:'확률과 통계, 대수, 미적분Ⅰ 일부',영어:'영어',사회:'일반사회·역사·윤리 중심',과학:'생명과학 일부 반영',기타:'제2외국어/한문 일부'},general:['확률과 통계','대수','사회와 문화','현대사회와 윤리','생명과학','영어Ⅰ'],career:['세포와 물질대사','생물의 유전','주제 탐구 독서'],fusion:['실용 통계','논리와 사고','사회문제 탐구'],note:'심리학은 사회과학과 생명과학의 접점입니다. 통계, 생명과학, 윤리 과목을 함께 선택하면 전공 적합성이 높습니다.'},
+ {major:'국어교육과',basis:'2028 자료집 기준학과',domain:'교육',aliases:['국어교육','국어교사','사범대 국어','국교','국어교육과'],reflect:{국어:'국어',수학:'일부 대학 대수·확률과 통계 반영',영어:'영어',사회:'역사·윤리 일부',과학:'일부 반영',기타:'한문/제2외국어'},general:['독서와 작문','문학','화법과 언어','사회와 문화','세계사','현대사회와 윤리'],career:['주제 탐구 독서','문학과 영상','한문'],fusion:['매체 의사소통','논리와 사고','사회문제 탐구'],note:'국어교육과는 국어 교과 전문성과 교육적 의사소통 역량이 중요합니다. 문학·독서·화법을 중심으로 설계합니다.'},
+ {major:'수학교육과',basis:'2028 자료집 기준학과',domain:'교육',aliases:['수학교육','수학 교사','수교','사범대 수학','수학교육과'],reflect:{국어:'일부 대학 국어 반영',수학:'대수, 확률과 통계, 미적분Ⅰ, 미적분Ⅱ, 기하',영어:'영어',사회:'일부 반영',과학:'물리학 일부',기타:'-'},general:['대수','미적분Ⅰ','확률과 통계','미적분Ⅱ','기하','영어Ⅰ','물리학'],career:['인공지능 수학','경제 수학'],fusion:['수학과제 탐구','수학과 문화','실용 통계'],note:'수학교육과는 수학 교과 위계가 매우 중요합니다. 미적분Ⅱ, 기하, 수학과제 탐구까지 연결하는 설계를 권장합니다.'},
+ {major:'생명과학과',basis:'2028 자료집 기준학과',domain:'자연',aliases:['생명과학','생물','바이오','생명공학','분자생물','생명과학부'],reflect:{국어:'일부 대학 국어 반영',수학:'미적분Ⅰ, 미적분Ⅱ, 확률과 통계, 대수',영어:'영어',사회:'일부 반영',과학:'화학·생명과학 중심, 일부 물리학·지구과학',기타:'-'},general:['생명과학','화학','확률과 통계','미적분Ⅰ','물리학','영어Ⅰ'],career:['세포와 물질대사','생물의 유전','물질과 에너지','화학 반응의 세계'],fusion:['융합과학 탐구','과학의 역사와 문화','실용 통계'],note:'생명과학 계열은 생명과학과 화학의 동시 이수가 중요합니다. 유전·세포 심화 과목으로 탐구의 깊이를 보여주는 것이 좋습니다.'},
+ {major:'물리학과',basis:'2028 자료집 기준학과',domain:'자연',aliases:['물리','물리학','천문','우주과학','물리학과'],reflect:{국어:'일부 대학 국어 반영',수학:'대수, 미적분Ⅰ, 미적분Ⅱ, 기하, 확률과 통계',영어:'영어',사회:'일부 반영',과학:'물리학 중심, 일부 화학·지구과학',기타:'-'},general:['물리학','미적분Ⅰ','미적분Ⅱ','기하','확률과 통계','화학'],career:['역학과 에너지','전자기와 양자'],fusion:['수학과제 탐구','융합과학 탐구','과학의 역사와 문화'],note:'물리학과는 미적분·기하·역학의 연계가 핵심입니다. 수학 선택을 충분히 확보해야 전공 적합성이 분명해집니다.'},
+ {major:'화학과',basis:'2028 자료집 기준학과',domain:'자연',aliases:['화학','화학과','응용화학','화학생명','화공 기초'],reflect:{국어:'일부 대학 국어 반영',수학:'대수, 미적분Ⅰ, 미적분Ⅱ, 확률과 통계',영어:'영어',사회:'일부 반영',과학:'화학 중심, 일부 물리학·생명과학',기타:'-'},general:['화학','미적분Ⅰ','확률과 통계','물리학','생명과학','영어Ⅰ'],career:['물질과 에너지','화학 반응의 세계','미적분Ⅱ'],fusion:['융합과학 탐구','과학의 역사와 문화','수학과제 탐구'],note:'화학과는 화학 심화와 수학적 모델링 역량이 중요합니다. 재료·화공 방향이면 물리학과 미적분Ⅱ까지 권장합니다.'},
+ {major:'기계공학과',basis:'2028 자료집 기준학과',domain:'공학',aliases:['기계','기계공학','로봇','자동차','항공','메카트로닉스','기계공학부'],reflect:{국어:'일부 대학 국어 반영',수학:'대수, 확률과 통계, 미적분Ⅰ, 미적분Ⅱ, 기하',영어:'영어',사회:'일부 반영',과학:'물리학 중심, 일부 화학',기타:'-'},general:['물리학','미적분Ⅰ','미적분Ⅱ','기하','확률과 통계','화학','정보'],career:['역학과 에너지','전자기와 양자','인공지능 수학'],fusion:['창의 공학 설계','수학과제 탐구','융합과학 탐구'],note:'기계공학은 힘, 운동, 설계, 제어를 다루므로 물리학·미적분Ⅱ·기하 선택이 강한 전공 신호가 됩니다.'},
+ {major:'컴퓨터공학과',basis:'2028 자료집 기준학과',domain:'공학',aliases:['컴퓨터','컴공','소프트웨어','소프트웨어학','AI','인공지능','데이터','정보보안','컴퓨터공학부'],reflect:{국어:'일부 대학 국어 반영',수학:'대수, 확률과 통계, 미적분Ⅰ, 미적분Ⅱ 일부, 기하 일부',영어:'영어',사회:'일부 반영',과학:'물리학·화학 일부',기타:'기술·가정/정보 일부'},general:['정보','대수','확률과 통계','미적분Ⅰ','물리학','영어Ⅰ'],career:['인공지능 수학','데이터 과학','인공지능 기초','프로그래밍','미적분Ⅱ'],fusion:['수학과제 탐구','실용 통계','창의 공학 설계','소프트웨어와 생활'],note:'컴퓨터공학은 수학·정보·데이터 역량을 함께 봅니다. AI·데이터 진로는 확률과 통계, 데이터 과학, 인공지능 수학을 강하게 권장합니다.'},
+ {major:'약학과',basis:'2028 자료집 기준학과',domain:'의약',aliases:['약학','약대','제약','신약','약학부'],reflect:{국어:'일부 대학 국어 반영',수학:'대수, 확률과 통계, 미적분Ⅰ, 미적분Ⅱ',영어:'영어',사회:'일부 반영',과학:'화학·생명과학 중심, 일부 물리학',기타:'-'},general:['화학','생명과학','미적분Ⅰ','확률과 통계','영어Ⅰ','물리학'],career:['물질과 에너지','화학 반응의 세계','세포와 물질대사','생물의 유전'],fusion:['융합과학 탐구','실용 통계','과학의 역사와 문화'],note:'약학과는 화학과 생명과학을 모두 강하게 요구합니다. 신약·약동학 탐구는 통계와 미적분까지 연결하면 좋습니다.'},
+ {major:'의예과',basis:'2028 자료집 기준학과',domain:'의약',aliases:['의예','의대','의학','의예과','치의예','치대','한의예','한의대'],reflect:{국어:'일부 대학 국어 반영',수학:'대수, 확률과 통계, 미적분Ⅰ, 미적분Ⅱ 중심',영어:'영어',사회:'일부 반영',과학:'화학·생명과학 중심, 일부 물리학',기타:'-'},general:['화학','생명과학','미적분Ⅰ','확률과 통계','물리학','영어Ⅰ'],career:['세포와 물질대사','생물의 유전','물질과 에너지','화학 반응의 세계','미적분Ⅱ'],fusion:['융합과학 탐구','실용 통계','논리와 사고'],note:'의예과는 화학·생명과학 중심 이수와 수학·과학 탐구의 깊이가 중요합니다. 대학별 권장과목 변동 가능성이 크므로 최신 모집요강 확인이 필수입니다.'},
+ {major:'시각디자인학과',basis:'2028 자료집 기준학과',domain:'예체능',aliases:['시각디자인','디자인','산업디자인','영상디자인','미술디자인'],reflect:{국어:'국어 일부',수학:'일부 대학 대수/확률과 통계',영어:'영어',사회:'일부 반영',과학:'일부 반영',기타:'미술, 미술 창작, 미술 감상과 비평'},general:['미술','독서와 작문','영어Ⅰ','사회와 문화','정보'],career:['미술 창작','미술 감상과 비평','문학과 영상'],fusion:['매체 의사소통','지식 재산 일반','창의 공학 설계'],note:'시각디자인은 표현 역량과 매체 이해가 중요합니다. 미술 창작·감상, 매체 의사소통, 지식재산 과목을 함께 설계하면 좋습니다.'},
+ {major:'음악학과',basis:'2028 자료집 기준학과',domain:'예체능',aliases:['음악','실용음악','작곡','성악','기악','음악학과'],reflect:{국어:'일부 반영',수학:'일부 반영',영어:'영어 일부',사회:'일부 반영',과학:'일부 반영',기타:'음악 관련 과목'},general:['음악','독서와 작문','영어Ⅰ','세계사'],career:['음악 감상과 비평'],fusion:['매체 의사소통','지식 재산 일반'],note:'음악 계열은 실기 역량이 중심이지만 음악사·비평·저작권·미디어 활용 과목으로 전공 탐색의 폭을 보여줄 수 있습니다.'},
+ {major:'체육학과',basis:'2028 자료집 기준학과',domain:'예체능',aliases:['체육','스포츠','스포츠과학','운동재활','체육교육 제외','체육학과'],reflect:{국어:'일부 반영',수학:'확률과 통계 일부',영어:'영어 일부',사회:'일부 반영',과학:'생명과학 일부',기타:'체육, 스포츠과학, 스포츠 생활'},general:['체육','생명과학','확률과 통계','사회와 문화','영어Ⅰ'],career:['스포츠 과학','세포와 물질대사'],fusion:['스포츠 생활','실용 통계','융합과학 탐구'],note:'체육·스포츠과학은 실기와 더불어 생명과학, 통계, 운동과학 이해가 중요합니다. 스포츠 생활 과목을 함께 권장합니다.'},
+
+ {major:'간호학과',basis:'대학별 권장과목 확장학과',domain:'의약',aliases:['간호','간호학','보건간호','간호대'],reflect:{국어:'대학별 상이',수학:'미적분Ⅱ 권장 사례',영어:'영어',사회:'윤리·사회 일부',과학:'생명과학 중심',기타:'세포와 물질대사, 생물의 유전 권장 사례'},general:['생명과학','화학','확률과 통계','영어Ⅰ','현대사회와 윤리','사회와 문화'],career:['세포와 물질대사','생물의 유전','화학 반응의 세계','미적분Ⅱ'],fusion:['융합과학 탐구','기후변화와 환경생태','논리와 사고'],note:'간호학과는 생명과학 기반이 가장 중요하며, 약물·감염·인체 이해를 위해 화학과 윤리 과목을 함께 선택하면 좋습니다.'},
+ {major:'식품공학과/식품영양학과',basis:'대학별 권장과목 확장학과',domain:'자연',aliases:['식품','식품공학','식품영양','영양','조리과학'],reflect:{국어:'대학별 상이',수학:'미적분Ⅱ 또는 기하 권장 사례',영어:'영어',사회:'일부',과학:'생명과학·화학 중심',기타:'물질과 에너지, 화학 반응의 세계, 세포와 물질대사, 생물의 유전'},general:['화학','생명과학','확률과 통계','미적분Ⅰ','영어Ⅰ'],career:['물질과 에너지','화학 반응의 세계','세포와 물질대사','생물의 유전'],fusion:['융합과학 탐구','기후변화와 환경생태','실용 통계'],note:'식품 계열은 화학 성분 분석, 영양 대사, 미생물 이해가 중요합니다. 화학·생명과학·통계의 조합이 안정적입니다.'},
+ {major:'신소재공학과/재료공학과',basis:'공학계열 확장학과',domain:'공학',aliases:['신소재','재료','나노','배터리','에너지소재','반도체소재'],reflect:{국어:'일부',수학:'미적분Ⅰ·Ⅱ, 확률과 통계',영어:'영어',사회:'일부',과학:'화학·물리학 중심',기타:'창의 공학 설계'},general:['화학','물리학','미적분Ⅰ','미적분Ⅱ','확률과 통계','정보'],career:['물질과 에너지','화학 반응의 세계','전자기와 양자'],fusion:['융합과학 탐구','창의 공학 설계','수학과제 탐구'],note:'신소재·재료공학은 물질 구조와 성질을 다루므로 화학·물리 균형이 핵심입니다. 배터리·반도체 방향이면 화학 심화와 전자기 과목이 유리합니다.'},
+ {major:'전기전자공학과/반도체공학과',basis:'공학계열 확장학과',domain:'공학',aliases:['전기','전자','전기전자','반도체','정보통신','통신공학'],reflect:{국어:'일부',수학:'미적분Ⅰ·Ⅱ, 기하, 확률과 통계',영어:'영어',사회:'일부',과학:'물리학 중심, 화학 보완',기타:'정보'},general:['물리학','미적분Ⅰ','미적분Ⅱ','기하','정보','화학'],career:['전자기와 양자','역학과 에너지','인공지능 수학'],fusion:['창의 공학 설계','융합과학 탐구','수학과제 탐구'],note:'전기전자·반도체는 전자기, 회로, 반도체 물성을 다루므로 물리학과 수학 심화가 중요합니다.'},
+ {major:'미디어커뮤니케이션학과/방송영상학과',basis:'인문사회 확장학과',domain:'사회',aliases:['미디어','커뮤니케이션','신문방송','언론','방송','영상','PD','광고홍보'],reflect:{국어:'국어',수학:'확률과 통계 일부',영어:'영어',사회:'일반사회·역사·지리·윤리',과학:'일부',기타:'정보/매체'},general:['독서와 작문','화법과 언어','사회와 문화','정치와 법','영어Ⅰ','정보'],career:['문학과 영상','주제 탐구 독서','심화 영어'],fusion:['매체 의사소통','논리와 사고','지식 재산 일반'],note:'미디어 계열은 글쓰기, 사회 이슈 분석, 영상·매체 제작 역량을 함께 보여주는 조합이 좋습니다.'}
+];
+
+// 온리도 X 진학섬:학과안내소 학과 목록 검색 확장 DB
+// 기존 대표 학과 21개에 더해 사이트 메인 목록/개별 학과 페이지에서 노출되는 학과명을 대량 보강했습니다.
+const ONLDO_EXTRA_MAJORS = [
+ {
+  "major": "고고미술사학과",
+  "domain": "인문",
+  "aliases": [
+   "고고미술사"
+  ]
+ },
+ {
+  "major": "고고학과",
+  "domain": "인문",
+  "aliases": [
+   "고고"
+  ]
+ },
+ {
+  "major": "국어국문학과",
+  "domain": "인문",
+  "aliases": [
+   "국어국문"
+  ]
+ },
+ {
+  "major": "노어노문학과",
+  "domain": "인문",
+  "aliases": [
+   "노어노문"
+  ]
+ },
+ {
+  "major": "독어독문학과",
+  "domain": "인문",
+  "aliases": [
+   "독어독문"
+  ]
+ },
+ {
+  "major": "문예창작학과",
+  "domain": "인문",
+  "aliases": [
+   "문예창작"
+  ]
+ },
+ {
+  "major": "문화유산학과",
+  "domain": "인문",
+  "aliases": [
+   "문화유산"
+  ]
+ },
+ {
+  "major": "문화재학과",
+  "domain": "인문",
+  "aliases": [
+   "문화재"
+  ]
+ },
+ {
+  "major": "문화인류학과",
+  "domain": "인문",
+  "aliases": [
+   "문화인류"
+  ]
+ },
+ {
+  "major": "불어불문학과",
+  "domain": "인문",
+  "aliases": [
+   "불어불문"
+  ]
+ },
+ {
+  "major": "사학과",
+  "domain": "인문",
+  "aliases": [
+   "사"
+  ]
+ },
+ {
+  "major": "서어서문학과",
+  "domain": "인문",
+  "aliases": [
+   "서어서문"
+  ]
+ },
+ {
+  "major": "언어학과",
+  "domain": "인문",
+  "aliases": [
+   "언어"
+  ]
+ },
+ {
+  "major": "영어영문학과",
+  "domain": "인문",
+  "aliases": [
+   "영어영문"
+  ]
+ },
+ {
+  "major": "일본어문학과",
+  "domain": "인문",
+  "aliases": [
+   "일본어문"
+  ]
+ },
+ {
+  "major": "일어일문학과",
+  "domain": "인문",
+  "aliases": [
+   "일어일문"
+  ]
+ },
+ {
+  "major": "중국어문학과",
+  "domain": "인문",
+  "aliases": [
+   "중국어문"
+  ]
+ },
+ {
+  "major": "중어중문학과",
+  "domain": "인문",
+  "aliases": [
+   "중어중문"
+  ]
+ },
+ {
+  "major": "철학과",
+  "domain": "인문",
+  "aliases": [
+   "철"
+  ]
+ },
+ {
+  "major": "한문학과",
+  "domain": "인문",
+  "aliases": [
+   "한문"
+  ]
+ },
+ {
+  "major": "인문콘텐츠학과",
+  "domain": "인문",
+  "aliases": [
+   "인문콘텐츠"
+  ]
+ },
+ {
+  "major": "문헌정보학과",
+  "domain": "인문",
+  "aliases": [
+   "문헌정보"
+  ]
+ },
+ {
+  "major": "한국어문학과",
+  "domain": "인문",
+  "aliases": [
+   "한국어문"
+  ]
+ },
+ {
+  "major": "아시아언어문화학부",
+  "domain": "인문",
+  "aliases": [
+   "아시아언어문화"
+  ]
+ },
+ {
+  "major": "유럽어문학과",
+  "domain": "인문",
+  "aliases": [
+   "유럽어문"
+  ]
+ },
+ {
+  "major": "러시아어문학과",
+  "domain": "인문",
+  "aliases": [
+   "러시아어문"
+  ]
+ },
+ {
+  "major": "포르투갈어과",
+  "domain": "인문",
+  "aliases": [
+   "포르투갈어과"
+  ]
+ },
+ {
+  "major": "아랍어과",
+  "domain": "인문",
+  "aliases": [
+   "아랍어과"
+  ]
+ },
+ {
+  "major": "태국어과",
+  "domain": "인문",
+  "aliases": [
+   "태국어과"
+  ]
+ },
+ {
+  "major": "베트남어과",
+  "domain": "인문",
+  "aliases": [
+   "베트남어과"
+  ]
+ },
+ {
+  "major": "터키어과",
+  "domain": "인문",
+  "aliases": [
+   "터키어과"
+  ]
+ },
+ {
+  "major": "가족아동복지학과",
+  "domain": "사회",
+  "aliases": [
+   "가족아동복지"
+  ]
+ },
+ {
+  "major": "경영정보학과",
+  "domain": "사회",
+  "aliases": [
+   "경영정보",
+   "경영학",
+   "비즈니스"
+  ]
+ },
+ {
+  "major": "경영학과",
+  "domain": "사회",
+  "aliases": [
+   "경영",
+   "경영학",
+   "비즈니스"
+  ]
+ },
+ {
+  "major": "경제학과",
+  "domain": "사회",
+  "aliases": [
+   "경제"
+  ]
+ },
+ {
+  "major": "경찰행정학과",
+  "domain": "사회",
+  "aliases": [
+   "경찰행정"
+  ]
+ },
+ {
+  "major": "공공인재학부",
+  "domain": "사회",
+  "aliases": [
+   "공공인재"
+  ]
+ },
+ {
+  "major": "공공행정학과",
+  "domain": "사회",
+  "aliases": [
+   "공공행정"
+  ]
+ },
+ {
+  "major": "관광경영학과",
+  "domain": "사회",
+  "aliases": [
+   "관광경영",
+   "경영학",
+   "비즈니스"
+  ]
+ },
+ {
+  "major": "관광학과",
+  "domain": "사회",
+  "aliases": [
+   "관광"
+  ]
+ },
+ {
+  "major": "광고홍보학과",
+  "domain": "사회",
+  "aliases": [
+   "광고홍보"
+  ]
+ },
+ {
+  "major": "국제관계학과",
+  "domain": "사회",
+  "aliases": [
+   "국제관계"
+  ]
+ },
+ {
+  "major": "국제통상학과",
+  "domain": "사회",
+  "aliases": [
+   "국제통상"
+  ]
+ },
+ {
+  "major": "금융보험학과",
+  "domain": "사회",
+  "aliases": [
+   "금융보험"
+  ]
+ },
+ {
+  "major": "금융학과",
+  "domain": "사회",
+  "aliases": [
+   "금융"
+  ]
+ },
+ {
+  "major": "금융투자학과",
+  "domain": "사회",
+  "aliases": [
+   "금융투자"
+  ]
+ },
+ {
+  "major": "금융세무학부",
+  "domain": "사회",
+  "aliases": [
+   "금융세무"
+  ]
+ },
+ {
+  "major": "금융경영학과",
+  "domain": "사회",
+  "aliases": [
+   "금융경영",
+   "경영학",
+   "비즈니스"
+  ]
+ },
+ {
+  "major": "무역학과",
+  "domain": "사회",
+  "aliases": [
+   "무역"
+  ]
+ },
+ {
+  "major": "물류학과",
+  "domain": "사회",
+  "aliases": [
+   "물류"
+  ]
+ },
+ {
+  "major": "사회복지학과",
+  "domain": "사회",
+  "aliases": [
+   "사회복지"
+  ]
+ },
+ {
+  "major": "사회학과",
+  "domain": "사회",
+  "aliases": [
+   "사회"
+  ]
+ },
+ {
+  "major": "소비자학과",
+  "domain": "사회",
+  "aliases": [
+   "소비자"
+  ]
+ },
+ {
+  "major": "신문방송학과",
+  "domain": "사회",
+  "aliases": [
+   "신문방송"
+  ]
+ },
+ {
+  "major": "미디어커뮤니케이션학과",
+  "domain": "사회",
+  "aliases": [
+   "미디어커뮤니케이션",
+   "미디어",
+   "커뮤니케이션",
+   "언론",
+   "방송"
+  ]
+ },
+ {
+  "major": "방송영상학과",
+  "domain": "사회",
+  "aliases": [
+   "방송영상"
+  ]
+ },
+ {
+  "major": "심리학과",
+  "domain": "사회",
+  "aliases": [
+   "심리"
+  ]
+ },
+ {
+  "major": "아동학과",
+  "domain": "사회",
+  "aliases": [
+   "아동"
+  ]
+ },
+ {
+  "major": "언론정보학과",
+  "domain": "사회",
+  "aliases": [
+   "언론정보"
+  ]
+ },
+ {
+  "major": "정치외교학과",
+  "domain": "사회",
+  "aliases": [
+   "정치외교"
+  ]
+ },
+ {
+  "major": "행정학과",
+  "domain": "사회",
+  "aliases": [
+   "행정"
+  ]
+ },
+ {
+  "major": "회계학과",
+  "domain": "사회",
+  "aliases": [
+   "회계"
+  ]
+ },
+ {
+  "major": "세무학과",
+  "domain": "사회",
+  "aliases": [
+   "세무"
+  ]
+ },
+ {
+  "major": "법학과",
+  "domain": "사회",
+  "aliases": [
+   "법"
+  ]
+ },
+ {
+  "major": "자유전공학부",
+  "domain": "사회",
+  "aliases": [
+   "자유"
+  ]
+ },
+ {
+  "major": "도시사회학과",
+  "domain": "사회",
+  "aliases": [
+   "도시사회"
+  ]
+ },
+ {
+  "major": "정보사회학과",
+  "domain": "사회",
+  "aliases": [
+   "정보사회"
+  ]
+ },
+ {
+  "major": "부동산학과",
+  "domain": "사회",
+  "aliases": [
+   "부동산"
+  ]
+ },
+ {
+  "major": "호텔경영학과",
+  "domain": "사회",
+  "aliases": [
+   "호텔경영",
+   "경영학",
+   "비즈니스"
+  ]
+ },
+ {
+  "major": "외식경영학과",
+  "domain": "사회",
+  "aliases": [
+   "외식경영",
+   "경영학",
+   "비즈니스"
+  ]
+ },
+ {
+  "major": "항공서비스학과",
+  "domain": "사회",
+  "aliases": [
+   "항공서비스"
+  ]
+ },
+ {
+  "major": "스마트비즈니스학과",
+  "domain": "사회",
+  "aliases": [
+   "스마트비즈니스"
+  ]
+ },
+ {
+  "major": "보험계리학과",
+  "domain": "사회",
+  "aliases": [
+   "보험계리"
+  ]
+ },
+ {
+  "major": "데이터사이언스학과",
+  "domain": "사회",
+  "aliases": [
+   "데이터사이언스"
+  ]
+ },
+ {
+  "major": "빅데이터학과",
+  "domain": "사회",
+  "aliases": [
+   "빅데이터"
+  ]
+ },
+ {
+  "major": "국제무역학과",
+  "domain": "사회",
+  "aliases": [
+   "국제무역"
+  ]
+ },
+ {
+  "major": "유통경영학과",
+  "domain": "사회",
+  "aliases": [
+   "유통경영",
+   "경영학",
+   "비즈니스"
+  ]
+ },
+ {
+  "major": "국제물류학과",
+  "domain": "사회",
+  "aliases": [
+   "국제물류"
+  ]
+ },
+ {
+  "major": "해양경찰학부",
+  "domain": "사회",
+  "aliases": [
+   "해양경찰"
+  ]
+ },
+ {
+  "major": "국방경찰행정학부",
+  "domain": "사회",
+  "aliases": [
+   "국방경찰행정"
+  ]
+ },
+ {
+  "major": "해양안보학전공",
+  "domain": "사회",
+  "aliases": [
+   "해양안보학"
+  ]
+ },
+ {
+  "major": "가정교육과",
+  "domain": "교육",
+  "aliases": [
+   "가정교육과"
+  ]
+ },
+ {
+  "major": "과학교육과",
+  "domain": "교육",
+  "aliases": [
+   "과학교육과"
+  ]
+ },
+ {
+  "major": "교육공학과",
+  "domain": "교육",
+  "aliases": [
+   "교육공"
+  ]
+ },
+ {
+  "major": "교육학과",
+  "domain": "교육",
+  "aliases": [
+   "교육"
+  ]
+ },
+ {
+  "major": "국어교육과",
+  "domain": "교육",
+  "aliases": [
+   "국어교육과"
+  ]
+ },
+ {
+  "major": "기술교육과",
+  "domain": "교육",
+  "aliases": [
+   "기술교육과"
+  ]
+ },
+ {
+  "major": "독어교육과",
+  "domain": "교육",
+  "aliases": [
+   "독어교육과"
+  ]
+ },
+ {
+  "major": "물리교육과",
+  "domain": "교육",
+  "aliases": [
+   "물리교육과"
+  ]
+ },
+ {
+  "major": "미술교육과",
+  "domain": "교육",
+  "aliases": [
+   "미술교육과"
+  ]
+ },
+ {
+  "major": "불어교육과",
+  "domain": "교육",
+  "aliases": [
+   "불어교육과"
+  ]
+ },
+ {
+  "major": "사회교육과",
+  "domain": "교육",
+  "aliases": [
+   "사회교육과"
+  ]
+ },
+ {
+  "major": "생물교육과",
+  "domain": "교육",
+  "aliases": [
+   "생물교육과"
+  ]
+ },
+ {
+  "major": "수학교육과",
+  "domain": "교육",
+  "aliases": [
+   "수학교육과"
+  ]
+ },
+ {
+  "major": "역사교육과",
+  "domain": "교육",
+  "aliases": [
+   "역사교육과"
+  ]
+ },
+ {
+  "major": "영어교육과",
+  "domain": "교육",
+  "aliases": [
+   "영어교육과"
+  ]
+ },
+ {
+  "major": "윤리교육과",
+  "domain": "교육",
+  "aliases": [
+   "윤리교육과"
+  ]
+ },
+ {
+  "major": "음악교육과",
+  "domain": "교육",
+  "aliases": [
+   "음악교육과"
+  ]
+ },
+ {
+  "major": "일반사회교육과",
+  "domain": "교육",
+  "aliases": [
+   "일반사회교육과"
+  ]
+ },
+ {
+  "major": "일어교육과",
+  "domain": "교육",
+  "aliases": [
+   "일어교육과"
+  ]
+ },
+ {
+  "major": "지구과학교육과",
+  "domain": "교육",
+  "aliases": [
+   "지구과학교육과"
+  ]
+ },
+ {
+  "major": "지리교육과",
+  "domain": "교육",
+  "aliases": [
+   "지리교육과"
+  ]
+ },
+ {
+  "major": "체육교육과",
+  "domain": "교육",
+  "aliases": [
+   "체육교육과"
+  ]
+ },
+ {
+  "major": "초등교육과",
+  "domain": "교육",
+  "aliases": [
+   "초등교육과"
+  ]
+ },
+ {
+  "major": "특수교육과",
+  "domain": "교육",
+  "aliases": [
+   "특수교육과"
+  ]
+ },
+ {
+  "major": "화학교육과",
+  "domain": "교육",
+  "aliases": [
+   "화학교육과"
+  ]
+ },
+ {
+  "major": "한문교육과",
+  "domain": "교육",
+  "aliases": [
+   "한문교육과"
+  ]
+ },
+ {
+  "major": "유아교육과",
+  "domain": "교육",
+  "aliases": [
+   "유아교육과"
+  ]
+ },
+ {
+  "major": "컴퓨터교육과",
+  "domain": "교육",
+  "aliases": [
+   "컴퓨터교육과",
+   "컴공",
+   "컴퓨터공학부"
+  ]
+ },
+ {
+  "major": "상담심리교육과",
+  "domain": "교육",
+  "aliases": [
+   "상담심리교육과"
+  ]
+ },
+ {
+  "major": "공업화학과",
+  "domain": "자연",
+  "aliases": [
+   "공업화"
+  ]
+ },
+ {
+  "major": "나노전자물리학과",
+  "domain": "자연",
+  "aliases": [
+   "나노전자물리"
+  ]
+ },
+ {
+  "major": "대기과학과",
+  "domain": "자연",
+  "aliases": [
+   "대기과"
+  ]
+ },
+ {
+  "major": "대기환경과학과",
+  "domain": "자연",
+  "aliases": [
+   "대기환경과"
+  ]
+ },
+ {
+  "major": "동물자원학과",
+  "domain": "자연",
+  "aliases": [
+   "동물자원"
+  ]
+ },
+ {
+  "major": "바이오메디컬공학과",
+  "domain": "자연",
+  "aliases": [
+   "바이오메디컬공"
+  ]
+ },
+ {
+  "major": "뇌인지과학부",
+  "domain": "자연",
+  "aliases": [
+   "뇌인지과"
+  ]
+ },
+ {
+  "major": "수학과",
+  "domain": "자연",
+  "aliases": [
+   "수"
+  ]
+ },
+ {
+  "major": "통계학과",
+  "domain": "자연",
+  "aliases": [
+   "통계"
+  ]
+ },
+ {
+  "major": "물리학과",
+  "domain": "자연",
+  "aliases": [
+   "물리"
+  ]
+ },
+ {
+  "major": "화학과",
+  "domain": "자연",
+  "aliases": [
+   "화"
+  ]
+ },
+ {
+  "major": "생명과학과",
+  "domain": "자연",
+  "aliases": [
+   "생명과"
+  ]
+ },
+ {
+  "major": "생물학과",
+  "domain": "자연",
+  "aliases": [
+   "생물"
+  ]
+ },
+ {
+  "major": "미생물학과",
+  "domain": "자연",
+  "aliases": [
+   "미생물"
+  ]
+ },
+ {
+  "major": "분자생물학과",
+  "domain": "자연",
+  "aliases": [
+   "분자생물"
+  ]
+ },
+ {
+  "major": "생명공학과",
+  "domain": "자연",
+  "aliases": [
+   "생명공"
+  ]
+ },
+ {
+  "major": "바이오생명공학과",
+  "domain": "자연",
+  "aliases": [
+   "바이오생명공"
+  ]
+ },
+ {
+  "major": "식품공학과",
+  "domain": "자연",
+  "aliases": [
+   "식품공"
+  ]
+ },
+ {
+  "major": "식품영양학과",
+  "domain": "자연",
+  "aliases": [
+   "식품영양"
+  ]
+ },
+ {
+  "major": "의류학과",
+  "domain": "자연",
+  "aliases": [
+   "의류"
+  ]
+ },
+ {
+  "major": "생활과학과",
+  "domain": "자연",
+  "aliases": [
+   "생활과"
+  ]
+ },
+ {
+  "major": "지구과학과",
+  "domain": "자연",
+  "aliases": [
+   "지구과"
+  ]
+ },
+ {
+  "major": "지질학과",
+  "domain": "자연",
+  "aliases": [
+   "지질"
+  ]
+ },
+ {
+  "major": "해양학과",
+  "domain": "자연",
+  "aliases": [
+   "해양"
+  ]
+ },
+ {
+  "major": "해양생명과학과",
+  "domain": "자연",
+  "aliases": [
+   "해양생명과"
+  ]
+ },
+ {
+  "major": "환경학과",
+  "domain": "자연",
+  "aliases": [
+   "환경"
+  ]
+ },
+ {
+  "major": "환경과학과",
+  "domain": "자연",
+  "aliases": [
+   "환경과"
+  ]
+ },
+ {
+  "major": "산림자원학과",
+  "domain": "자연",
+  "aliases": [
+   "산림자원"
+  ]
+ },
+ {
+  "major": "원예학과",
+  "domain": "자연",
+  "aliases": [
+   "원예"
+  ]
+ },
+ {
+  "major": "농생명과학과",
+  "domain": "자연",
+  "aliases": [
+   "농생명과"
+  ]
+ },
+ {
+  "major": "축산학과",
+  "domain": "자연",
+  "aliases": [
+   "축산"
+  ]
+ },
+ {
+  "major": "수산생명의학과",
+  "domain": "자연",
+  "aliases": [
+   "수산생명의"
+  ]
+ },
+ {
+  "major": "수의학과",
+  "domain": "자연",
+  "aliases": [
+   "수의"
+  ]
+ },
+ {
+  "major": "응용수학과",
+  "domain": "자연",
+  "aliases": [
+   "응용수"
+  ]
+ },
+ {
+  "major": "응용통계학과",
+  "domain": "자연",
+  "aliases": [
+   "응용통계"
+  ]
+ },
+ {
+  "major": "천문우주학과",
+  "domain": "자연",
+  "aliases": [
+   "천문우주"
+  ]
+ },
+ {
+  "major": "기상학과",
+  "domain": "자연",
+  "aliases": [
+   "기상"
+  ]
+ },
+ {
+  "major": "화학생명과학과",
+  "domain": "자연",
+  "aliases": [
+   "화학생명과"
+  ]
+ },
+ {
+  "major": "생명정보학과",
+  "domain": "자연",
+  "aliases": [
+   "생명정보"
+  ]
+ },
+ {
+  "major": "의생명과학과",
+  "domain": "자연",
+  "aliases": [
+   "의생명과"
+  ]
+ },
+ {
+  "major": "스마트푸드테크학과",
+  "domain": "자연",
+  "aliases": [
+   "스마트푸드테크"
+  ]
+ },
+ {
+  "major": "조기취업형계약학부 스마트푸드테크학과",
+  "domain": "자연",
+  "aliases": [
+   "조기취업형계약 스마트푸드테크",
+   "약대",
+   "제약"
+  ]
+ },
+ {
+  "major": "건설시스템공학과",
+  "domain": "공학",
+  "aliases": [
+   "건설시스템공"
+  ]
+ },
+ {
+  "major": "건설환경공학과",
+  "domain": "공학",
+  "aliases": [
+   "건설환경공"
+  ]
+ },
+ {
+  "major": "건축공학과",
+  "domain": "공학",
+  "aliases": [
+   "건축공"
+  ]
+ },
+ {
+  "major": "건축학과",
+  "domain": "공학",
+  "aliases": [
+   "건축"
+  ]
+ },
+ {
+  "major": "게임공학과",
+  "domain": "공학",
+  "aliases": [
+   "게임공"
+  ]
+ },
+ {
+  "major": "게임소프트웨어학과",
+  "domain": "공학",
+  "aliases": [
+   "게임소프트웨어"
+  ]
+ },
+ {
+  "major": "고분자공학과",
+  "domain": "공학",
+  "aliases": [
+   "고분자공"
+  ]
+ },
+ {
+  "major": "공간정보공학과",
+  "domain": "공학",
+  "aliases": [
+   "공간정보공"
+  ]
+ },
+ {
+  "major": "교통공학과",
+  "domain": "공학",
+  "aliases": [
+   "교통공"
+  ]
+ },
+ {
+  "major": "금속재료공학과",
+  "domain": "공학",
+  "aliases": [
+   "금속재료공"
+  ]
+ },
+ {
+  "major": "기계공학과",
+  "domain": "공학",
+  "aliases": [
+   "기계공"
+  ]
+ },
+ {
+  "major": "기계IT융합공학과",
+  "domain": "공학",
+  "aliases": [
+   "기계IT융합공"
+  ]
+ },
+ {
+  "major": "기계설계공학과",
+  "domain": "공학",
+  "aliases": [
+   "기계설계공"
+  ]
+ },
+ {
+  "major": "기계시스템공학과",
+  "domain": "공학",
+  "aliases": [
+   "기계시스템공"
+  ]
+ },
+ {
+  "major": "나노공학과",
+  "domain": "공학",
+  "aliases": [
+   "나노공"
+  ]
+ },
+ {
+  "major": "도시공학과",
+  "domain": "공학",
+  "aliases": [
+   "도시공"
+  ]
+ },
+ {
+  "major": "메카트로닉스공학과",
+  "domain": "공학",
+  "aliases": [
+   "메카트로닉스공"
+  ]
+ },
+ {
+  "major": "로봇공학과",
+  "domain": "공학",
+  "aliases": [
+   "로봇공"
+  ]
+ },
+ {
+  "major": "반도체공학과",
+  "domain": "공학",
+  "aliases": [
+   "반도체공"
+  ]
+ },
+ {
+  "major": "소프트웨어학과",
+  "domain": "공학",
+  "aliases": [
+   "소프트웨어"
+  ]
+ },
+ {
+  "major": "컴퓨터공학과",
+  "domain": "공학",
+  "aliases": [
+   "컴퓨터공",
+   "컴공",
+   "컴퓨터공학부"
+  ]
+ },
+ {
+  "major": "인공지능학과",
+  "domain": "공학",
+  "aliases": [
+   "인공지능"
+  ]
+ },
+ {
+  "major": "데이터공학과",
+  "domain": "공학",
+  "aliases": [
+   "데이터공"
+  ]
+ },
+ {
+  "major": "정보보호학과",
+  "domain": "공학",
+  "aliases": [
+   "정보보호"
+  ]
+ },
+ {
+  "major": "사이버보안학과",
+  "domain": "공학",
+  "aliases": [
+   "사이버보안"
+  ]
+ },
+ {
+  "major": "전기공학과",
+  "domain": "공학",
+  "aliases": [
+   "전기공"
+  ]
+ },
+ {
+  "major": "전자공학과",
+  "domain": "공학",
+  "aliases": [
+   "전자공"
+  ]
+ },
+ {
+  "major": "전기전자공학과",
+  "domain": "공학",
+  "aliases": [
+   "전기전자공"
+  ]
+ },
+ {
+  "major": "정보통신공학과",
+  "domain": "공학",
+  "aliases": [
+   "정보통신공"
+  ]
+ },
+ {
+  "major": "제어계측공학과",
+  "domain": "공학",
+  "aliases": [
+   "제어계측공"
+  ]
+ },
+ {
+  "major": "신소재공학과",
+  "domain": "공학",
+  "aliases": [
+   "신소재공"
+  ]
+ },
+ {
+  "major": "재료공학과",
+  "domain": "공학",
+  "aliases": [
+   "재료공"
+  ]
+ },
+ {
+  "major": "에너지공학과",
+  "domain": "공학",
+  "aliases": [
+   "에너지공"
+  ]
+ },
+ {
+  "major": "화학공학과",
+  "domain": "공학",
+  "aliases": [
+   "화학공"
+  ]
+ },
+ {
+  "major": "생명화학공학과",
+  "domain": "공학",
+  "aliases": [
+   "생명화학공"
+  ]
+ },
+ {
+  "major": "환경공학과",
+  "domain": "공학",
+  "aliases": [
+   "환경공"
+  ]
+ },
+ {
+  "major": "산업공학과",
+  "domain": "공학",
+  "aliases": [
+   "산업공"
+  ]
+ },
+ {
+  "major": "시스템경영공학과",
+  "domain": "공학",
+  "aliases": [
+   "시스템경영공",
+   "경영학",
+   "비즈니스"
+  ]
+ },
+ {
+  "major": "자동차공학과",
+  "domain": "공학",
+  "aliases": [
+   "자동차공"
+  ]
+ },
+ {
+  "major": "항공우주공학과",
+  "domain": "공학",
+  "aliases": [
+   "항공우주공"
+  ]
+ },
+ {
+  "major": "조선해양공학과",
+  "domain": "공학",
+  "aliases": [
+   "조선해양공"
+  ]
+ },
+ {
+  "major": "해양공학과",
+  "domain": "공학",
+  "aliases": [
+   "해양공"
+  ]
+ },
+ {
+  "major": "토목공학과",
+  "domain": "공학",
+  "aliases": [
+   "토목공"
+  ]
+ },
+ {
+  "major": "섬유공학과",
+  "domain": "공학",
+  "aliases": [
+   "섬유공"
+  ]
+ },
+ {
+  "major": "의공학과",
+  "domain": "공학",
+  "aliases": [
+   "의공"
+  ]
+ },
+ {
+  "major": "의용공학과",
+  "domain": "공학",
+  "aliases": [
+   "의용공"
+  ]
+ },
+ {
+  "major": "바이오메디컬공학과",
+  "domain": "공학",
+  "aliases": [
+   "바이오메디컬공"
+  ]
+ },
+ {
+  "major": "원자력공학과",
+  "domain": "공학",
+  "aliases": [
+   "원자력공"
+  ]
+ },
+ {
+  "major": "소방방재학과",
+  "domain": "공학",
+  "aliases": [
+   "소방방재"
+  ]
+ },
+ {
+  "major": "안전공학과",
+  "domain": "공학",
+  "aliases": [
+   "안"
+  ]
+ },
+ {
+  "major": "스마트모빌리티공학과",
+  "domain": "공학",
+  "aliases": [
+   "스마트모빌리티공"
+  ]
+ },
+ {
+  "major": "배터리공학과",
+  "domain": "공학",
+  "aliases": [
+   "배터리공"
+  ]
+ },
+ {
+  "major": "간호학과",
+  "domain": "의약",
+  "aliases": [
+   "간호"
+  ]
+ },
+ {
+  "major": "건강관리학과",
+  "domain": "의약",
+  "aliases": [
+   "건강관리"
+  ]
+ },
+ {
+  "major": "물리치료학과",
+  "domain": "의약",
+  "aliases": [
+   "물리치료"
+  ]
+ },
+ {
+  "major": "방사선학과",
+  "domain": "의약",
+  "aliases": [
+   "방사선"
+  ]
+ },
+ {
+  "major": "보건관리학과",
+  "domain": "의약",
+  "aliases": [
+   "보건관리"
+  ]
+ },
+ {
+  "major": "수의예과",
+  "domain": "의약",
+  "aliases": [
+   "수의예과",
+   "의대",
+   "의학"
+  ]
+ },
+ {
+  "major": "수의학과",
+  "domain": "의약",
+  "aliases": [
+   "수의"
+  ]
+ },
+ {
+  "major": "안경광학과",
+  "domain": "의약",
+  "aliases": [
+   "안경광"
+  ]
+ },
+ {
+  "major": "약학과",
+  "domain": "의약",
+  "aliases": [
+   "약",
+   "약대",
+   "제약"
+  ]
+ },
+ {
+  "major": "언어청각치료학과",
+  "domain": "의약",
+  "aliases": [
+   "언어청각치료"
+  ]
+ },
+ {
+  "major": "언어치료학과",
+  "domain": "의약",
+  "aliases": [
+   "언어치료"
+  ]
+ },
+ {
+  "major": "응급구조학과",
+  "domain": "의약",
+  "aliases": [
+   "응급구조"
+  ]
+ },
+ {
+  "major": "의예과",
+  "domain": "의약",
+  "aliases": [
+   "의예과",
+   "의대",
+   "의학"
+  ]
+ },
+ {
+  "major": "치의예과",
+  "domain": "의약",
+  "aliases": [
+   "치의예과",
+   "의대",
+   "의학",
+   "치대"
+  ]
+ },
+ {
+  "major": "한의예과",
+  "domain": "의약",
+  "aliases": [
+   "한의예과",
+   "의대",
+   "의학",
+   "한의대"
+  ]
+ },
+ {
+  "major": "작업치료학과",
+  "domain": "의약",
+  "aliases": [
+   "작업치료"
+  ]
+ },
+ {
+  "major": "임상병리학과",
+  "domain": "의약",
+  "aliases": [
+   "임상병리"
+  ]
+ },
+ {
+  "major": "치위생학과",
+  "domain": "의약",
+  "aliases": [
+   "치위생"
+  ]
+ },
+ {
+  "major": "치기공학과",
+  "domain": "의약",
+  "aliases": [
+   "치기공"
+  ]
+ },
+ {
+  "major": "보건행정학과",
+  "domain": "의약",
+  "aliases": [
+   "보건행정"
+  ]
+ },
+ {
+  "major": "재활학과",
+  "domain": "의약",
+  "aliases": [
+   "재활"
+  ]
+ },
+ {
+  "major": "스포츠재활학과",
+  "domain": "의약",
+  "aliases": [
+   "스포츠재활"
+  ]
+ },
+ {
+  "major": "의료공학과",
+  "domain": "의약",
+  "aliases": [
+   "의료공"
+  ]
+ },
+ {
+  "major": "의료정보학과",
+  "domain": "의약",
+  "aliases": [
+   "의료정보"
+  ]
+ },
+ {
+  "major": "제약학과",
+  "domain": "의약",
+  "aliases": [
+   "제약",
+   "약대"
+  ]
+ },
+ {
+  "major": "한약학과",
+  "domain": "의약",
+  "aliases": [
+   "한약",
+   "약대",
+   "제약"
+  ]
+ },
+ {
+  "major": "보건환경학과",
+  "domain": "의약",
+  "aliases": [
+   "보건환경"
+  ]
+ },
+ {
+  "major": "경호학과",
+  "domain": "예체능",
+  "aliases": [
+   "경호"
+  ]
+ },
+ {
+  "major": "공업디자인학과",
+  "domain": "예체능",
+  "aliases": [
+   "공업디자인",
+   "디자인"
+  ]
+ },
+ {
+  "major": "관현악과",
+  "domain": "예체능",
+  "aliases": [
+   "관현악과"
+  ]
+ },
+ {
+  "major": "금속공예학과",
+  "domain": "예체능",
+  "aliases": [
+   "금속공예"
+  ]
+ },
+ {
+  "major": "디지털콘텐츠학과",
+  "domain": "예체능",
+  "aliases": [
+   "디지털콘텐츠"
+  ]
+ },
+ {
+  "major": "게임콘텐츠학과",
+  "domain": "예체능",
+  "aliases": [
+   "게임콘텐츠"
+  ]
+ },
+ {
+  "major": "공예학과",
+  "domain": "예체능",
+  "aliases": [
+   "공예"
+  ]
+ },
+ {
+  "major": "국악과",
+  "domain": "예체능",
+  "aliases": [
+   "국악과"
+  ]
+ },
+ {
+  "major": "무용학과",
+  "domain": "예체능",
+  "aliases": [
+   "무용"
+  ]
+ },
+ {
+  "major": "문예창작학과",
+  "domain": "예체능",
+  "aliases": [
+   "문예창작"
+  ]
+ },
+ {
+  "major": "미술학과",
+  "domain": "예체능",
+  "aliases": [
+   "미술"
+  ]
+ },
+ {
+  "major": "서양화과",
+  "domain": "예체능",
+  "aliases": [
+   "서양화과"
+  ]
+ },
+ {
+  "major": "동양화과",
+  "domain": "예체능",
+  "aliases": [
+   "동양화과"
+  ]
+ },
+ {
+  "major": "조소과",
+  "domain": "예체능",
+  "aliases": [
+   "조소과"
+  ]
+ },
+ {
+  "major": "시각디자인학과",
+  "domain": "예체능",
+  "aliases": [
+   "시각디자인",
+   "디자인"
+  ]
+ },
+ {
+  "major": "산업디자인학과",
+  "domain": "예체능",
+  "aliases": [
+   "산업디자인",
+   "디자인"
+  ]
+ },
+ {
+  "major": "실내디자인학과",
+  "domain": "예체능",
+  "aliases": [
+   "실내디자인",
+   "디자인"
+  ]
+ },
+ {
+  "major": "패션디자인학과",
+  "domain": "예체능",
+  "aliases": [
+   "패션디자인",
+   "디자인"
+  ]
+ },
+ {
+  "major": "영상디자인학과",
+  "domain": "예체능",
+  "aliases": [
+   "영상디자인",
+   "디자인"
+  ]
+ },
+ {
+  "major": "사진학과",
+  "domain": "예체능",
+  "aliases": [
+   "사진"
+  ]
+ },
+ {
+  "major": "영상영화학과",
+  "domain": "예체능",
+  "aliases": [
+   "영상영화"
+  ]
+ },
+ {
+  "major": "영화학과",
+  "domain": "예체능",
+  "aliases": [
+   "영화"
+  ]
+ },
+ {
+  "major": "연극영화학과",
+  "domain": "예체능",
+  "aliases": [
+   "연극영화"
+  ]
+ },
+ {
+  "major": "연출과",
+  "domain": "예체능",
+  "aliases": [
+   "연출과"
+  ]
+ },
+ {
+  "major": "애니메이션학과",
+  "domain": "예체능",
+  "aliases": [
+   "애니메이션"
+  ]
+ },
+ {
+  "major": "만화애니메이션학과",
+  "domain": "예체능",
+  "aliases": [
+   "만화애니메이션"
+  ]
+ },
+ {
+  "major": "성악과",
+  "domain": "예체능",
+  "aliases": [
+   "성악과"
+  ]
+ },
+ {
+  "major": "작곡과",
+  "domain": "예체능",
+  "aliases": [
+   "작곡과"
+  ]
+ },
+ {
+  "major": "실용음악과",
+  "domain": "예체능",
+  "aliases": [
+   "실용음악과"
+  ]
+ },
+ {
+  "major": "음악학과",
+  "domain": "예체능",
+  "aliases": [
+   "음악"
+  ]
+ },
+ {
+  "major": "체육학과",
+  "domain": "예체능",
+  "aliases": [
+   "체육"
+  ]
+ },
+ {
+  "major": "스포츠건강관리학과",
+  "domain": "예체능",
+  "aliases": [
+   "스포츠건강관리"
+  ]
+ },
+ {
+  "major": "스포츠과학과",
+  "domain": "예체능",
+  "aliases": [
+   "스포츠과"
+  ]
+ },
+ {
+  "major": "스포츠산업학과",
+  "domain": "예체능",
+  "aliases": [
+   "스포츠산업"
+  ]
+ },
+ {
+  "major": "태권도학과",
+  "domain": "예체능",
+  "aliases": [
+   "태권도"
+  ]
+ },
+ {
+  "major": "무대미술학과",
+  "domain": "예체능",
+  "aliases": [
+   "무대미술"
+  ]
+ },
+ {
+  "major": "엔터테인먼트전공",
+  "domain": "예체능",
+  "aliases": [
+   "엔터테인먼트"
+  ]
+ },
+ {
+  "major": "특수영상전공",
+  "domain": "예체능",
+  "aliases": [
+   "특수영상"
+  ]
+ },
+ {
+  "major": "미디어아트학과",
+  "domain": "예체능",
+  "aliases": [
+   "미디어아트"
+  ]
+ },
+ {
+  "major": "뷰티디자인학과",
+  "domain": "예체능",
+  "aliases": [
+   "뷰티디자인",
+   "디자인"
+  ]
+ }
+];
+
+const TEMPLATE_BY_DOMAIN = {
+  '인문': {general:['독서와 작문','문학','화법과 언어','세계사','사회와 문화','현대사회와 윤리','영어Ⅰ','영어Ⅱ'], career:['주제 탐구 독서','심화 영어','한문','문학과 영상'], fusion:['매체 의사소통','논리와 사고','국제 관계의 이해'], reflect:{국어:'국어 전 과목 기반',수학:'대수, 확률과 통계 일부',영어:'영어',사회:'역사·윤리·사회문화 중심',과학:'일부 대학 반영',기타:'제2외국어/한문 권장 가능'}, note:'인문계열은 텍스트 독해, 비판적 사고, 역사·문화 맥락 이해가 핵심입니다. 국어·영어 기반에 역사·윤리·제2외국어를 보완하면 전공 적합성이 높아집니다.'},
+  '사회': {general:['확률과 통계','대수','사회와 문화','정치와 법','경제','영어Ⅰ','독서와 작문'], career:['경제 수학','데이터 과학','주제 탐구 독서','심화 영어'], fusion:['실용 통계','사회문제 탐구','금융과 경제생활','국제 관계의 이해'], reflect:{국어:'국어',수학:'대수, 확률과 통계, 미적분Ⅰ 일부',영어:'영어',사회:'일반사회·경제·정치와 법 중심',과학:'일부 대학 반영',기타:'정보/제2외국어 일부'}, note:'사회계열은 사회 현상 분석, 자료 해석, 통계·정책 이해가 중요합니다. 확률과 통계, 사회문화, 경제, 정치와 법을 중심으로 선택하는 것이 안정적입니다.'},
+  '교육': {general:['독서와 작문','화법과 언어','사회와 문화','현대사회와 윤리','영어Ⅰ','확률과 통계'], career:['주제 탐구 독서','교육학','심화 영어','아동발달과 부모'], fusion:['논리와 사고','사회문제 탐구','매체 의사소통'], reflect:{국어:'국어',수학:'전공에 따라 대수·미적분·확률과 통계',영어:'영어',사회:'윤리·사회·역사 일부',과학:'과학교육 계열은 과학 심화 필수',기타:'교육학/한문/제2외국어 일부'}, note:'교육계열은 교과 전문성과 교육적 의사소통 능력이 함께 필요합니다. 해당 교과의 심화 과목과 교육·윤리·소통 과목을 연결하면 좋습니다.'},
+  '자연': {general:['미적분Ⅰ','확률과 통계','화학','생명과학','물리학','지구과학','영어Ⅰ'], career:['미적분Ⅱ','세포와 물질대사','생물의 유전','물질과 에너지','화학 반응의 세계'], fusion:['융합과학 탐구','수학과제 탐구','실용 통계','기후변화와 환경생태'], reflect:{국어:'일부 대학 반영',수학:'대수, 미적분Ⅰ·Ⅱ, 확률과 통계',영어:'영어',사회:'일부 반영',과학:'물리학·화학·생명과학·지구과학 중 전공별 선택',기타:'-'}, note:'자연계열은 수학과 과학의 연계 이수가 중요합니다. 전공에 따라 생명·화학형, 물리·수학형, 지구·환경형으로 심화 과목을 조정해야 합니다.'},
+  '공학': {general:['미적분Ⅰ','미적분Ⅱ','기하','확률과 통계','물리학','화학','정보'], career:['역학과 에너지','전자기와 양자','인공지능 수학','데이터 과학'], fusion:['창의 공학 설계','수학과제 탐구','융합과학 탐구','소프트웨어와 생활'], reflect:{국어:'일부 대학 반영',수학:'대수, 미적분Ⅰ·Ⅱ, 기하, 확률과 통계',영어:'영어',사회:'일부 반영',과학:'물리학 중심, 전공별 화학·생명과학 보완',기타:'정보/기술·가정'}, note:'공학계열은 수학·물리 기반의 문제 해결력과 설계 역량이 중요합니다. 미적분Ⅱ, 기하, 물리학, 정보 과목을 우선 확인해야 합니다.'},
+  '의약': {general:['생명과학','화학','확률과 통계','미적분Ⅰ','영어Ⅰ','현대사회와 윤리'], career:['세포와 물질대사','생물의 유전','물질과 에너지','화학 반응의 세계','미적분Ⅱ'], fusion:['융합과학 탐구','실용 통계','기후변화와 환경생태','논리와 사고'], reflect:{국어:'일부 대학 반영',수학:'대수, 미적분Ⅰ·Ⅱ, 확률과 통계',영어:'영어',사회:'윤리/사회 일부',과학:'화학·생명과학 중심, 일부 물리학',기타:'보건·의료 관련 탐구'}, note:'의약계열은 생명과학과 화학의 균형이 핵심입니다. 환자·생명윤리·보건통계까지 연결하면 수행평가와 세특 설계가 좋아집니다.'},
+  '예체능': {general:['미술','음악','체육','독서와 작문','영어Ⅰ','사회와 문화','정보'], career:['미술 창작','미술 감상과 비평','음악 감상과 비평','스포츠 과학','문학과 영상'], fusion:['매체 의사소통','지식 재산 일반','창의 공학 설계','스포츠 생활'], reflect:{국어:'일부 반영',수학:'일부 대학 대수/확률과 통계',영어:'영어 일부',사회:'일부 반영',과학:'일부 반영',기타:'미술·음악·체육·정보/매체 과목'}, note:'예체능계열은 실기·작품·포트폴리오가 중심이지만, 매체 이해, 비평, 저작권, 데이터·기술 활용 과목을 함께 설계하면 전공 확장성이 커집니다.'}
+};
+function keywordAdjustedTemplate(major, domain){
+  const t = JSON.parse(JSON.stringify(TEMPLATE_BY_DOMAIN[domain] || TEMPLATE_BY_DOMAIN['사회']));
+  const m = major;
+  if(/컴퓨터|소프트웨어|게임|인공지능|데이터|정보보호|사이버/.test(m)){t.general=['정보','대수','확률과 통계','미적분Ⅰ','물리학','영어Ⅰ'];t.career=['인공지능 수학','데이터 과학','인공지능 기초','미적분Ⅱ'];t.fusion=['소프트웨어와 생활','수학과제 탐구','실용 통계','창의 공학 설계'];t.note='소프트웨어·AI·데이터 계열은 정보, 수학, 통계 기반이 핵심입니다. 확률과 통계, 데이터 과학, 인공지능 수학을 우선 권장합니다.';}
+  else if(/건축|도시|토목|건설|교통/.test(m)){t.general=['물리학','미적분Ⅰ','미적분Ⅱ','기하','확률과 통계','정보'];t.career=['역학과 에너지','창의 공학 설계','인공지능 수학'];t.fusion=['수학과제 탐구','생활과학 탐구','융합과학 탐구'];t.note='건축·도시·토목 계열은 공간·구조·하중 이해가 중요하므로 물리학, 기하, 미적분Ⅱ를 중심으로 선택하는 것이 좋습니다.';}
+  else if(/기계|로봇|자동차|항공|메카트로닉스|조선/.test(m)){t.general=['물리학','미적분Ⅰ','미적분Ⅱ','기하','확률과 통계','정보'];t.career=['역학과 에너지','전자기와 양자','인공지능 수학'];t.fusion=['창의 공학 설계','수학과제 탐구','융합과학 탐구'];t.note='기계·로봇·항공 계열은 운동, 힘, 제어, 설계 역량이 중요합니다. 물리학과 미적분Ⅱ, 기하를 강하게 권장합니다.';}
+  else if(/전기|전자|반도체|정보통신|제어|원자력/.test(m)){t.general=['물리학','미적분Ⅰ','미적분Ⅱ','기하','정보','화학'];t.career=['전자기와 양자','역학과 에너지','인공지능 수학'];t.fusion=['창의 공학 설계','수학과제 탐구','융합과학 탐구'];t.note='전기전자·반도체 계열은 전자기와 회로, 반도체 물성 이해가 중요하므로 물리학과 수학 심화 이수가 필요합니다.';}
+  else if(/화학|신소재|재료|고분자|나노|금속|에너지|배터리/.test(m)){t.general=['화학','물리학','미적분Ⅰ','미적분Ⅱ','확률과 통계','영어Ⅰ'];t.career=['물질과 에너지','화학 반응의 세계','전자기와 양자'];t.fusion=['융합과학 탐구','창의 공학 설계','수학과제 탐구'];t.note='화학·소재·에너지 계열은 물질 구조와 반응, 물성 분석이 핵심입니다. 화학과 물리학의 균형 이수가 좋습니다.';}
+  else if(/생명|바이오|식품|동물|의생명|미생물|분자|농생명|수산|원예|축산/.test(m)){t.general=['생명과학','화학','확률과 통계','미적분Ⅰ','영어Ⅰ'];t.career=['세포와 물질대사','생물의 유전','물질과 에너지','화학 반응의 세계'];t.fusion=['융합과학 탐구','실용 통계','기후변화와 환경생태'];t.note='생명·바이오·식품 계열은 생명과학과 화학을 함께 선택하는 것이 중요합니다. 실험 결과 해석을 위해 통계 과목도 권장합니다.';}
+  else if(/수학|통계|계리/.test(m)){t.general=['대수','미적분Ⅰ','미적분Ⅱ','확률과 통계','영어Ⅰ'];t.career=['인공지능 수학','경제 수학','데이터 과학'];t.fusion=['수학과제 탐구','실용 통계','수학과 문화'];t.note='수학·통계·계리 계열은 미적분과 확률통계의 위계적 이수가 매우 중요합니다. 데이터 분석 과목을 함께 선택하면 좋습니다.';}
+  else if(/간호|의예|치의예|한의예|약학|수의|물리치료|작업치료|방사선|임상병리|응급|보건|언어치료|안경/.test(m)){t.general=['생명과학','화학','확률과 통계','미적분Ⅰ','영어Ⅰ','현대사회와 윤리'];t.career=['세포와 물질대사','생물의 유전','물질과 에너지','화학 반응의 세계'];t.fusion=['융합과학 탐구','실용 통계','논리와 사고'];t.note='보건·의료 계열은 생명과학, 화학, 보건윤리, 통계 해석 역량이 중요합니다. 임상 사례형 탐구와 연결하면 전공 적합성이 분명해집니다.';}
+  else if(/경영|경제|금융|회계|세무|무역|통상|물류|관광|호텔|외식|비즈니스/.test(m)){t.general=['대수','확률과 통계','경제','사회와 문화','영어Ⅰ','영어Ⅱ'];t.career=['경제 수학','데이터 과학','심화 영어'];t.fusion=['실용 통계','금융과 경제생활','국제 관계의 이해','사회문제 탐구'];t.note='경영·경제·금융 계열은 수리·통계, 경제 현상 분석, 영어 자료 독해 역량이 중요합니다.';}
+  else if(/법|행정|경찰|정치|외교|국제|공공|해양경찰|국방/.test(m)){t.general=['정치와 법','사회와 문화','현대사회와 윤리','세계사','영어Ⅰ','확률과 통계'];t.career=['주제 탐구 독서','심화 영어','데이터 과학'];t.fusion=['국제 관계의 이해','사회문제 탐구','논리와 사고'];t.note='법·행정·정치외교 계열은 제도 이해, 쟁점 분석, 논증 능력이 핵심입니다. 정치와 법, 윤리, 국제관계 과목을 권장합니다.';}
+  else if(/미디어|신문|방송|광고|홍보|영상|PD|콘텐츠|영화|연극|애니/.test(m)){t.general=['독서와 작문','화법과 언어','사회와 문화','정보','영어Ⅰ'];t.career=['문학과 영상','주제 탐구 독서','미술 창작'];t.fusion=['매체 의사소통','지식 재산 일반','소프트웨어와 생활'];t.note='미디어·영상·콘텐츠 계열은 기획, 스토리텔링, 사회 이슈 분석, 매체 제작 역량이 중요합니다.';}
+  else if(/디자인|미술|공예|패션|사진|서양화|동양화|조소/.test(m)){t.general=['미술','독서와 작문','영어Ⅰ','사회와 문화','정보'];t.career=['미술 창작','미술 감상과 비평','문학과 영상'];t.fusion=['매체 의사소통','지식 재산 일반','창의 공학 설계'];t.note='미술·디자인 계열은 표현 역량과 매체 활용, 비평 능력이 중요합니다. 미술 창작·감상과 정보·매체 과목을 함께 설계하면 좋습니다.';}
+  else if(/음악|성악|작곡|관현악|국악|실용음악/.test(m)){t.general=['음악','독서와 작문','영어Ⅰ','세계사'];t.career=['음악 감상과 비평'];t.fusion=['매체 의사소통','지식 재산 일반'];t.note='음악 계열은 실기 역량이 중심이지만 음악사, 감상과 비평, 저작권·매체 활용 과목을 연결하면 전공 탐색이 넓어집니다.';}
+  else if(/체육|스포츠|경호|태권도|무용|재활/.test(m)){t.general=['체육','생명과학','확률과 통계','사회와 문화','영어Ⅰ'];t.career=['스포츠 과학','세포와 물질대사'];t.fusion=['스포츠 생활','실용 통계','융합과학 탐구'];t.note='체육·스포츠 계열은 실기와 함께 운동생리, 통계, 건강관리 이해가 중요합니다. 생명과학과 스포츠 과학을 함께 권장합니다.';}
+  return t;
+}
+function addOnldoExtraMajors(){
+  const existing = new Set(DATA.map(x=>norm(x.major)));
+  ONLDO_EXTRA_MAJORS.forEach(x=>{
+    if(existing.has(norm(x.major))) return;
+    const t=keywordAdjustedTemplate(x.major,x.domain);
+    DATA.push({major:x.major,basis:'온리도 학과안내소 검색 확장학과',domain:x.domain,aliases:x.aliases||[],reflect:t.reflect,general:t.general,career:t.career,fusion:t.fusion,note:t.note});
+    existing.add(norm(x.major));
+  });
+}
+addOnldoExtraMajors();
+
+
+const domains=['전체','인문','사회','교육','자연','공학','의약','예체능'];
+let activeDomain='전체';
+
+const STORAGE_KEY='major_subject_multi_students_v2';
+let students=[];
+let currentStudentId=null;
+let isApplyingStudent=false;
+
+function uid(){return 'stu_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
+function loadStudents(){
+ try{
+   const raw=localStorage.getItem(STORAGE_KEY);
+   students=raw?JSON.parse(raw):[];
+   if(!Array.isArray(students)) students=[];
+ }catch(e){students=[];}
+}
+function persistStudents(){localStorage.setItem(STORAGE_KEY, JSON.stringify(students));}
+function selectedSubjects(){return [...document.querySelectorAll('#studentSubjects input:checked')].map(x=>x.value);}
+function getFormState(){
+ return {
+   id: currentStudentId || uid(),
+   name: document.getElementById('studentName').value.trim(),
+   school: document.getElementById('schoolName').value.trim(),
+   grade: document.getElementById('grade').value,
+   domain: document.getElementById('domain').value,
+   q: document.getElementById('q').value.trim(),
+   memo: document.getElementById('memo').value,
+   subjects: selectedSubjects(),
+   updatedAt: new Date().toISOString()
+ };
+}
+function applyStudentState(stu){
+ isApplyingStudent=true;
+ document.getElementById('studentName').value=stu?.name||'';
+ document.getElementById('schoolName').value=stu?.school||'';
+ document.getElementById('grade').value=stu?.grade||'고1';
+ document.getElementById('domain').value=stu?.domain||'';
+ document.getElementById('q').value=stu?.q||'';
+ document.getElementById('memo').value=stu?.memo||'';
+ const set=new Set(stu?.subjects||[]);
+ document.querySelectorAll('#studentSubjects input').forEach(x=>x.checked=set.has(x.value));
+ isApplyingStudent=false;
+ render();
+}
+function upsertStudentFromForm(showAlert=false){
+ const state=getFormState();
+ if(!state.name && !state.school && !state.q && state.subjects.length===0){
+   if(showAlert) alert('학생명, 학교, 희망 학과 또는 체크 과목 중 하나 이상을 입력해 주세요.');
+   return null;
+ }
+ const idx=students.findIndex(s=>s.id===state.id);
+ if(idx>=0){
+   students[idx]={...students[idx],...state};
+ }else{
+   state.createdAt=new Date().toISOString();
+   students.unshift(state);
+   currentStudentId=state.id;
+ }
+ persistStudents();
+ renderStudentList();
+ if(showAlert) alert('현재 학생 정보가 저장되었습니다.');
+ return state;
+}
+function autoSaveCurrentStudent(){
+ if(isApplyingStudent || !currentStudentId) return;
+ upsertStudentFromForm(false);
+}
+function saveCurrentStudent(){upsertStudentFromForm(true); render();}
+function newStudent(){
+ currentStudentId=null;
+ isApplyingStudent=true;
+ ['studentName','schoolName','q','memo'].forEach(id=>document.getElementById(id).value='');
+ document.getElementById('domain').value='';
+ document.getElementById('grade').value='고1';
+ document.querySelectorAll('#studentSubjects input').forEach(x=>x.checked=false);
+ isApplyingStudent=false;
+ render();
+ renderStudentList();
+}
+function selectStudent(id){
+ if(currentStudentId) upsertStudentFromForm(false);
+ const stu=students.find(s=>s.id===id);
+ if(!stu) return;
+ currentStudentId=id;
+ applyStudentState(stu);
+ renderStudentList();
+}
+function deleteCurrentStudent(){
+ if(!currentStudentId){alert('삭제할 학생을 먼저 선택해 주세요.'); return;}
+ const stu=students.find(s=>s.id===currentStudentId);
+ const label=(stu?.name||'이 학생')+' 정보를 삭제할까요?';
+ if(!confirm(label)) return;
+ students=students.filter(s=>s.id!==currentStudentId);
+ persistStudents();
+ currentStudentId=null;
+ newStudent();
+}
+let studentSort='recent';
+function toggleStudentSort(){
+ studentSort = studentSort==='recent' ? 'name' : 'recent';
+ const btn=document.getElementById('sortToggle');
+ if(btn) btn.textContent = studentSort==='recent' ? '최근순' : '이름순';
+ renderStudentList();
+}
+function fmtDate(iso){
+ if(!iso) return '';
+ try{const d=new Date(iso);const mm=String(d.getMonth()+1).padStart(2,'0');const dd=String(d.getDate()).padStart(2,'0');const hh=String(d.getHours()).padStart(2,'0');const mi=String(d.getMinutes()).padStart(2,'0');return `${d.getFullYear()}.${mm}.${dd} ${hh}:${mi}`;}catch(e){return '';}
+}
+function renderStudentList(){
+ const wrap=document.getElementById('studentList');
+ if(!wrap) return;
+ const cntEl=document.getElementById('studentCount');
+ const kw=(document.getElementById('studentSearch')?.value||'').trim().toLowerCase();
+ let list=students.slice();
+ if(kw){ list=list.filter(s=>((s.name||'')+' '+(s.school||'')).toLowerCase().includes(kw)); }
+ if(studentSort==='name'){ list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ko')); }
+ else { list.sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))); }
+ if(cntEl){ cntEl.textContent = `전체 ${students.length}명${kw?` · 검색결과 ${list.length}명`:''}`; }
+ if(students.length===0){
+   wrap.innerHTML='<div class="student-empty">저장된 학생이 없습니다.<br>학생 정보를 입력한 뒤 <b>현재 학생 저장</b>을 눌러 주세요.</div>';
+   return;
+ }
+ if(list.length===0){
+   wrap.innerHTML='<div class="student-empty">검색 결과가 없습니다.</div>';
+   return;
+ }
+ wrap.innerHTML=list.map(s=>{
+   const name=s.name||'이름 미입력';
+   const school=s.school||'학교 미입력';
+   const q=s.q||'전체';
+   const cnt=(s.subjects||[]).length;
+   const memoFlag=(s.memo&&s.memo.trim())?'has-memo':'';
+   const dt=fmtDate(s.updatedAt);
+   return `<div class="student-card ${s.id===currentStudentId?'active':''} ${memoFlag}" onclick="selectStudent('${s.id}')"><b>${name}</b><span>${school} · ${s.grade||'고1'} · 검색: ${q}</span><span>체크 과목 ${cnt}개 · 계열 ${s.domain||'전체'}</span>${dt?`<span class="meta">최근 수정 ${dt}</span>`:''}</div>`;
+ }).join('');
+}
+function exportStudentsJSON(){
+ if(currentStudentId) upsertStudentFromForm(false);
+ const payload={version:2, exportedAt:new Date().toISOString(), students};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8;'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='선택과목_학생목록_백업.json';
+ a.click();
+ URL.revokeObjectURL(a.href);
+}
+function importStudentsJSON(event){
+ const file=event.target.files?.[0];
+ if(!file) return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+   try{
+     const parsed=JSON.parse(reader.result);
+     const incoming=Array.isArray(parsed)?parsed:(parsed.students||[]);
+     if(!Array.isArray(incoming)) throw new Error('invalid');
+     const map=new Map(students.map(s=>[s.id,s]));
+     incoming.forEach(s=>{
+       const id=s.id||uid();
+       map.set(id,{...s,id,subjects:Array.isArray(s.subjects)?s.subjects:[],updatedAt:s.updatedAt||new Date().toISOString()});
+     });
+     students=[...map.values()].sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+     persistStudents();
+     currentStudentId=students[0]?.id||null;
+     if(currentStudentId) applyStudentState(students[0]); else newStudent();
+     alert('학생 백업 파일을 불러왔습니다.');
+   }catch(e){alert('불러오기 실패: 올바른 학생 백업 JSON 파일인지 확인해 주세요.');}
+   event.target.value='';
+ };
+ reader.readAsText(file,'utf-8');
+}
+function filteredListForState(stu){
+ const q=stu.q||'';
+ const domain=stu.domain||'';
+ const selected=stu.subjects||[];
+ let list=DATA.filter(x=>(!domain||x.domain===domain) && matchItem(x,q));
+ if(list.length===0 && q){list=DATA.filter(x=>(!domain||x.domain===domain) && allKeywords(x).includes(norm(q).slice(0,2)));}
+ return list.sort((a,b)=>score(b,selected)-score(a,selected) || a.domain.localeCompare(b.domain,'ko') || a.major.localeCompare(b.major,'ko'));
+}
+function exportAllStudentsCSV(){
+ if(currentStudentId) upsertStudentFromForm(false);
+ const rows=[['학생명','학교','학년','검색어','계열필터','체크과목수','추천순위','학과','학과계열','적합도','일반선택','진로선택','융합선택','상담포인트','상담메모']];
+ students.forEach(stu=>{
+   const selected=stu.subjects||[];
+   filteredListForState(stu).slice(0,10).forEach((x,i)=>{
+     rows.push([stu.name||'',stu.school||'',stu.grade||'',stu.q||'전체',stu.domain||'전체',selected.length,i+1,x.major,x.domain,score(x,selected),x.general.join('|'),x.career.join('|'),x.fusion.join('|'),x.note,stu.memo||'']);
+   });
+ });
+ const csv=rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\n');
+ const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8;'});
+ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='전체학생_선택과목_추천요약.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+
+function norm(s){return String(s||'').toLowerCase().replace(/\s+/g,'').replace(/[·ㆍ\-/()]/g,'').replace(/학과|학부|전공|계열|대학/g,'').replace(/Ⅰ/g,'1').replace(/Ⅱ/g,'2');}
+function allKeywords(item){return norm([item.major,item.domain,item.basis,...item.aliases,...item.general,...item.career,...item.fusion,Object.values(item.reflect).join(' ')].join(' '));}
+function matchItem(item,q){
+ if(!q) return true;
+ const nq=norm(q);
+ if(allKeywords(item).includes(nq)) return true;
+ // 초성/약칭성 검색 보완
+ const aliases = {컴공:'컴퓨터공학',의대:'의예',약대:'약학',경영대:'경영',국교:'국어교육',수교:'수학교육',디자인:'시각디자인',영상:'미디어커뮤니케이션',간호:'간호학'};
+ if(aliases[nq] && allKeywords(item).includes(norm(aliases[nq]))) return true;
+ return nq.length>=2 && item.aliases.some(a=>norm(a).includes(nq) || nq.includes(norm(a)));
+}
+function weightedTargets(item){
+ const map=new Map();
+ item.general.slice(0,6).forEach(s=>map.set(s,Math.max(map.get(s)||0,3)));
+ item.career.slice(0,4).forEach(s=>map.set(s,Math.max(map.get(s)||0,2)));
+ item.fusion.slice(0,3).forEach(s=>map.set(s,Math.max(map.get(s)||0,1)));
+ return map;
+}
+function score(item, selected){
+ if(!selected || selected.length===0) return 0;
+ const w=weightedTargets(item);
+ const sel=new Set(selected);
+ let got=0,total=0;
+ const weights=[...w.values()].sort((a,b)=>b-a);
+ const denomCount=Math.min(weights.length,8);
+ for(let i=0;i<denomCount;i++) total+=weights[i];
+ w.forEach((wt,subj)=>{ if(sel.has(subj)) got+=wt; });
+ if(total===0) return 0;
+ return Math.min(100, Math.round(got/total*100));
+}
+function supplementSubjects(item, selected){
+ const w=weightedTargets(item);
+ const sel=new Set(selected||[]);
+ return [...w.entries()].filter(([s])=>!sel.has(s)).sort((a,b)=>b[1]-a[1]).map(([s])=>s);
+}
+function matchedSubjects(item, selected){
+ const w=weightedTargets(item);
+ const sel=new Set(selected||[]);
+ return [...w.keys()].filter(s=>sel.has(s));
+}
+function span(s,cls,sel){const ck=sel&&sel.has(s)?' checked':'';return `<span class="subj ${cls||''}${ck}">${s}</span>`}
+function list(arr,cls,sel){return arr.map(s=>span(s,cls,sel)).join('')}
+function matrix(item){
+ const keys=['국어','수학','영어','사회','과학','기타'];
+ return `<div class="matrix"><table><thead><tr>${keys.map(k=>`<th>${k}</th>`).join('')}</tr></thead><tbody><tr>${keys.map(k=>`<td>${item.reflect[k]||'-'}</td>`).join('')}</tr></tbody></table></div>`;
+}
+function card(item, selected){
+ const sc=score(item,selected);
+ const sel=new Set(selected||[]);
+ const matched=matchedSubjects(item,selected||[]);
+ const supp=supplementSubjects(item,selected||[]);
+ const hasSel=selected&&selected.length;
+ const matchedHtml = hasSel ? `<div class="matched-info">✓ 체크한 과목 중 이 학과 핵심과목 일치: ${matched.length}개${matched.length?' ('+matched.join(', ')+')':''}</div>` : '';
+ const suppHtml = (hasSel && supp.length) ? `<div class="supplement"><b>보완하면 좋은 핵심과목</b> · 이 학과 추천과목 중 아직 미선택<div class="subjects">${supp.slice(0,8).map(x=>span(x,'')).join('')}</div></div>` : '';
+ return `<article class="card">
+  <div class="top">
+    <div>
+      <h3 class="title">${item.major}</h3>
+      <div class="pills"><span class="pill domain">${item.domain}</span><span class="pill source">${item.basis}</span><span class="pill exact">2028 반영경향 + 2022 과목분류</span></div>
+    </div>
+    <div class="score"><b>${sc}</b><span>선택 적합도</span></div>
+  </div>
+  ${matchedHtml}
+  <div class="guide"><b>2028 자료집 반영과목 경향</b>${matrix(item)}</div>
+  <div class="grid4">
+    <div class="box common"><h4>공통과목</h4><div class="subjects">${list(COMMON_ALL,'rec',sel)}</div></div>
+    <div class="box general"><h4>일반선택과목</h4><div class="subjects">${list(item.general,'core',sel)}</div></div>
+    <div class="box career"><h4>진로선택과목</h4><div class="subjects">${list(item.career,'career',sel)}</div></div>
+    <div class="box fusion"><h4>융합선택과목</h4><div class="subjects">${list(item.fusion,'fusion',sel)}</div></div>
+  </div>
+  ${suppHtml}
+  <div class="guide"><b>상담 포인트</b> ${item.note}</div>
+ </article>`;
+}
+function fillSubjects(){
+ const wrap=document.getElementById('studentSubjects');
+ wrap.innerHTML=SUBJECTS.map(s=>`<label class="checkitem"><input type="checkbox" value="${s}" onchange="render();autoSaveCurrentStudent()"> ${s}</label>`).join('');
+}
+function renderChips(){
+ const ch=document.getElementById('chips');
+ ch.innerHTML=domains.map(d=>`<span class="chip ${activeDomain===d?'active':''}" onclick="activeDomain='${d}';document.getElementById('domain').value='${d==='전체'?'':d}';render();">${d}</span>`).join('');
+}
+function render(){
+ const q=document.getElementById('q').value.trim();
+ const domain=document.getElementById('domain').value;
+ activeDomain=domain||'전체';
+ const selected=selectedSubjects();
+ let list=DATA.filter(x=>(!domain||x.domain===domain) && matchItem(x,q));
+ if(list.length===0 && q){
+   // 검색어가 특정 과목/계열과 가까우면 관련 학과군 일부라도 제시
+   list=DATA.filter(x=>(!domain||x.domain===domain) && allKeywords(x).includes(norm(q).slice(0,2)));
+ }
+ list.sort((a,b)=>score(b,selected)-score(a,selected) || a.domain.localeCompare(b.domain,'ko') || a.major.localeCompare(b.major,'ko'));
+ document.getElementById('nMajors').textContent=list.length;
+ document.getElementById('nSelected').textContent=selected.length;
+ document.getElementById('topScore').textContent=list.length?Math.max(...list.map(x=>score(x,selected))):0;
+ const topItem = list.length ? list.slice().sort((a,b)=>score(b,selected)-score(a,selected))[0] : null;
+ const suppCount = (topItem && selected.length) ? supplementSubjects(topItem, selected).length : 0;
+ const nSup=document.getElementById('nSupplement'); if(nSup) nSup.textContent=suppCount;
+ const name=document.getElementById('studentName').value.trim()||'미입력';
+ const school=document.getElementById('schoolName').value.trim()||'미입력';
+ const grade=document.getElementById('grade').value;
+ const memoVal=document.getElementById('memo').value.trim();
+ document.getElementById('studentInfoLine').innerHTML=`학생명: <b>${name}</b>　|　학교: <b>${school}</b>　|　학년: <b>${grade}</b>　|　검색어: <b>${q||'전체'}</b>`;
+ const ph=document.getElementById('printHeader');
+ if(ph){ ph.innerHTML=`<h2>${name} 학생 선택과목 상담 보고서</h2><div class="ph-line">학교: ${school} · 학년: ${grade} · 희망/검색: ${q||'전체'} · 출력일: ${fmtDate(new Date().toISOString())}</div>${memoVal?`<div class="ph-memo">상담 메모: ${memoVal}</div>`:''}`; }
+ document.getElementById('results').innerHTML=list.length?list.map(x=>card(x,selected)).join(''):`<div class="empty"><b>검색 결과가 없습니다.</b><br>예: “컴퓨터”, “컴공”, “간호”, “경영”, “의예”, “디자인”, “미디어”처럼 입력해 주세요.</div>`;
+ renderChips();
+ renderStudentList();
+ autoSaveCurrentStudent();
+}
+function resetAll(){
+ if(currentStudentId && confirm('현재 선택 학생의 입력값을 모두 비울까요? 저장된 학생 자체는 삭제되지 않습니다.')){
+   isApplyingStudent=true;
+   ['studentName','schoolName','q','memo'].forEach(id=>document.getElementById(id).value='');
+   document.getElementById('domain').value=''; document.getElementById('grade').value='고1';
+   document.querySelectorAll('#studentSubjects input').forEach(x=>x.checked=false);
+   isApplyingStudent=false;
+   upsertStudentFromForm(false);
+ }else if(!currentStudentId){
+   newStudent();
+ }
+ render();
+}
+function exportCSV(){
+ const selected=selectedSubjects();
+ const rows=[['학생명',document.getElementById('studentName').value],['학교',document.getElementById('schoolName').value],['학년',document.getElementById('grade').value],['검색어',document.getElementById('q').value||'전체'],['상담메모',document.getElementById('memo').value],['체크과목',selected.join('|')],[],['계열','학과','자료근거','적합도','2028 수학','2028 사회','2028 과학','일반선택','진로선택','융합선택','상담포인트']];
+ DATA.forEach(x=>rows.push([x.domain,x.major,x.basis,score(x,selected),x.reflect.수학,x.reflect.사회,x.reflect.과학,x.general.join('|'),x.career.join('|'),x.fusion.join('|'),x.note]));
+ const csv=rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\n');
+ const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8;'});
+ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='학과별_선택과목_상담자료.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+function setMobileView(v){
+ document.body.classList.toggle('m-results', v==='results');
+ document.body.classList.toggle('m-input', v==='input');
+ const ti=document.getElementById('tabInput'), tr=document.getElementById('tabResults');
+ if(ti) ti.classList.toggle('active', v==='input');
+ if(tr) tr.classList.toggle('active', v==='results');
+ window.scrollTo(0,0);
+}
+setMobileView('input');
+fillSubjects(); loadStudents(); if(students.length){currentStudentId=students[0].id; applyStudentState(students[0]);}else{render(); renderStudentList();}
+</script>
+</body>
+</html>
