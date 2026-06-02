@@ -120,6 +120,11 @@ textarea#memo{min-height:60px;resize:vertical;line-height:1.5}
 .print-header h2{margin:0 0 4px;font-size:20px}
 .print-header .ph-line{font-size:13px;color:#334155}
 .print-header .ph-memo{margin-top:6px;font-size:13px;color:#475569;white-space:pre-wrap}
+.brand{margin-bottom:4px}
+.brand .brand-name{font-size:clamp(18px,2.1vw,25px);font-weight:1000;color:#1c2e7a;letter-spacing:-1px}
+.ph-brand .brand-name{font-size:16px;font-weight:1000;color:#1c2e7a;letter-spacing:-.5px}
+.print-footer-brand{display:none}
+@media print{.print-footer-brand{display:block;margin-top:10px;text-align:right;font-size:11px;color:#1c2e7a;font-weight:900}}
 .mobile-tabs{display:none}
 @media(max-width:860px){
   .mobile-tabs{display:flex;gap:8px;width:min(100%,1320px);margin:0 auto;padding:0 14px 8px}
@@ -132,6 +137,7 @@ textarea#memo{min-height:60px;resize:vertical;line-height:1.5}
 </head>
 <body>
 <header>
+  <div class="brand"><span class="brand-name">에듀케레 바른교육연구소</span></div>
   <span class="badge">2022 개정 교육과정 + 2028 모집단위별 반영·권장과목 기반</span>
   <h1>다중 학생 학과별 선택과목 정밀 설계 프로그램</h1>
   <p class="lead">여러 학생을 등록해 두고 학생별 희망 학과·계열·체크 과목을 따로 관리할 수 있습니다. 학생명과 학교명을 입력하고 희망 학과를 검색하면, 자료집의 모집단위별 반영과목을 바탕으로 <b>공통과목·일반선택과목·진로선택과목·융합선택과목</b>을 분리하여 제시합니다. 검색은 학과명 일부만 입력해도 작동하며, 예를 들어 “컴공”, “간호”, “경영”, “의대”, “디자인”처럼 입력해도 관련 학과가 출력되며, 온리도 학과안내소에 노출되는 인문·사회·교육·자연·공학·의약·예체능 계열 학과명을 검색 확장 DB로 보강했습니다.</p>
@@ -207,6 +213,7 @@ textarea#memo{min-height:60px;resize:vertical;line-height:1.5}
     <div id="chips" class="chips"></div>
   </div>
   <div id="results"></div>
+  <div class="print-footer-brand">ⓒ 에듀케레 바른교육연구소 — 선택과목 정밀 설계 자료</div>
 </section>
 </main>
 
@@ -215,6 +222,7 @@ textarea#memo{min-height:60px;resize:vertical;line-height:1.5}
 </div>
 
 <script>
+const BRAND_HTML = '<div class="ph-brand"><span class="brand-name">에듀케레 바른교육연구소</span></div>';
 const COMMON_ALL = ['공통국어1','공통국어2','공통수학1','공통수학2','공통영어1','공통영어2','한국사1','한국사2','통합사회1','통합사회2','통합과학1','통합과학2','과학탐구실험1','과학탐구실험2'];
 
 const SUBJECTS = [
@@ -2542,7 +2550,7 @@ function render(){
  const memoVal=document.getElementById('memo').value.trim();
  document.getElementById('studentInfoLine').innerHTML=`학생명: <b>${name}</b>　|　학교: <b>${school}</b>　|　학년: <b>${grade}</b>　|　검색어: <b>${q||'전체'}</b>`;
  const ph=document.getElementById('printHeader');
- if(ph){ ph.innerHTML=`<h2>${name} 학생 선택과목 상담 보고서</h2><div class="ph-line">학교: ${school} · 학년: ${grade} · 희망/검색: ${q||'전체'} · 출력일: ${fmtDate(new Date().toISOString())}</div>${memoVal?`<div class="ph-memo">상담 메모: ${memoVal}</div>`:''}`; }
+ if(ph){ ph.innerHTML=BRAND_HTML+`<h2>${name} 학생 선택과목 상담 보고서</h2><div class="ph-line">학교: ${school} · 학년: ${grade} · 희망/검색: ${q||'전체'} · 출력일: ${fmtDate(new Date().toISOString())}</div>${memoVal?`<div class="ph-memo">상담 메모: ${memoVal}</div>`:''}`; }
  document.getElementById('results').innerHTML=list.length?list.map(x=>card(x,selected)).join(''):`<div class="empty"><b>검색 결과가 없습니다.</b><br>예: “컴퓨터”, “컴공”, “간호”, “경영”, “의예”, “디자인”, “미디어”처럼 입력해 주세요.</div>`;
  renderChips();
  renderStudentList();
